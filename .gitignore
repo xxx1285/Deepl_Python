@@ -3,3 +3,4 @@
 *.zip
 config.py
 *config*
+/temp
