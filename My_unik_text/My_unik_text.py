@@ -14,42 +14,41 @@ def clean_text(text):
     return text
 
 
-def translate_text(text):
-    # переклад тексту через API Deepl
-    url = 'https://api-free.deepl.com/v2/translate'
-    params = {
-        'auth_key': 'your_auth_key',
-        'text': text,
-        'target_lang': 'UK'
-    }
-    response = requests.post(url, data=params)
-    json_data = response.json()
-    translated_text = json_data['translations'][0]['text']
-    return translated_text
+# def translate_text(text):
+#     # переклад тексту через API Deepl
+#     with open(r'\configs\config_sql_deepl.json') as f:
+#         config = json.load(f)
+#     url = config['deepl']['url']
+#     params = {
+#         'auth_key': config['deepl']['auth_key'],
+#         'text': text,
+#         'target_lang': 'UK'
+#     }
+#     response = requests.post(url, data=params)
+#     json_data = response.json()
+#     translated_text = json_data['translations'][0]['text']
+#     return translated_text
 
 
-# SQL Зчитуємо параметри з конфігураційного файлу
-with open(r'\configs\config_sql.json') as f:
-    config = json.load(f)
+# # SQL Зчитуємо параметри з конфігураційного файлу
+# with open(r'\configs\config_sql.json') as f:
+#     config = json.load(f)
 
 # Створюємо об'єкт класу NLTKTextConverter
 converter = NLTKTextConverter()
 
 # Відкриваємо файл з HTML-кодом
-with open(r'txt\no_unik_html.txt', 'r', encoding='utf-8') as f:
-    html = f.read()
+with open(r"C:\Gembling\Deepl_Python\Deepl_Python\My_unik_text\txt\no_unik_html.txt", "r", encoding="utf-8") as f:
+    html_text_file = f.read()
 
 # Розбираємо HTML за допомогою BeautifulSoup
-soup = BeautifulSoup(html, "html.parser")
-
-
+soup = BeautifulSoup(html_text_file, "html.parser")
 
 # Знаходимо всі тексти в HTML
 texts = soup.find_all(text=True)
-text = soup.find("p").get_text()
+
 # Видаляємо символи з тексту
-for char in chars_to_remove:
-    texts = re.sub(re.escape(char), "", texts)
+cleaned_text = clean_text(texts)
 
 for text in texts:
     # Якщо тексти не є частиною структури тегів, пропускаємо їх

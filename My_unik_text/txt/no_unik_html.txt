@@ -1,0 +1,9 @@
+<br>
+<h3 class="LC20lb MBeuO DKV0Md">Парсинг JSON в Python - OTUS</h3>
+<cite class="iUh30 qLRx3b tjvcx" role="text">https://otus.ru
+    <span class="dyjrff qzEoUe" role="text"> › nest › post</span>
+</cite>
+<p>6 дек. 2019 г.<em>JSON</em> входит в стандартную библиотеку входит в стандартную библиотеку входит в стандартную библиотеку
+    входит в стандартную <strong>библиотеку</strong> входит в стандартную библиотеку<em>Python</em> и является эффективным средством взаимодействия с
+                    JavaScript Object Notation (именно так&nbsp;...</p>
+<div data-ved="2ahUKEwjGq_GJrKn9AhWNUXcKHbUUCaIQsKwBKAJ6BAhUEAM">парсинг json файла python</div>
