@@ -1,6 +1,7 @@
 /images/*/*
 *.csv
 *.zip
+/config/*
 config.py
 *config*
 /temp
