@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 def clean_text(text):
     # функція для видалення символів з тексту
-    remove_chars = ['&nbsp;', '&', '\'', '"', "'"]
+    remove_chars = ['&nbsp;', '&', '<br />', '<br/>', '/n', '\n', '"']
     for char in remove_chars:
         text = text.replace(char, '')
     return text
@@ -47,13 +47,13 @@ soup = BeautifulSoup(html_text_file, "html.parser")
 # Знаходимо всі тексти в HTML
 texts = soup.find_all(text=True)
 
-# Видаляємо символи з тексту
-cleaned_text = clean_text(texts)
-
 for text in texts:
     # Якщо тексти не є частиною структури тегів, пропускаємо їх
     if text.parent.name in ["style", "script", "head", "title", "meta"]:
         continue
+
+    # Видаляємо символи з тексту
+    cleaned_text = clean_text(texts)
 
     # Розбиваємо текст на токени
     unique_text = converter.tokenize_text(text)
