@@ -3,22 +3,9 @@ import random
 
 
 class NLTKTextConverter:
-    def __init__(self):
-        self.text = ""
-        self.tokenized_text = []
-        self.tagged_text = []
-        self.pos_counts = {}
-        self.pos_to_word = {}
-        self.word_to_pos = {}
-
-    def load_text(self, filename):
-        # Завантажуємо текстовий файл
-        with open(filename, "r", encoding="utf-8") as file:
-            self.text = file.read()
-
-    def tokenize_text(self):
+    def tokenize_text(self, text):
         # Розбиваємо текст на токени
-        self.tokenized_text = nltk.word_tokenize(self.text)
+        tokenized_text = nltk.word_tokenize(text)
 
     def tag_text(self):
         # Виконуємо POS-тегування тексту
