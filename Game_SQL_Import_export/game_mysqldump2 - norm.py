@@ -6,7 +6,7 @@ import pymysql
 
 
 # куди зберігаємо SQL файл
-output_file = r'Game_SQL_Import_export\baza\dump_game000.sql'
+output_file = r'Game_SQL_Import_export\baza\dump_game000331.sql'
 
 # SQL Зчитуємо параметри з конфігураційного файлу
 with open(r"C:\Gembling\Deepl_Python\Deepl_Python\Game_SQL_Import_export\configs\config_sql_import_export.json") as f:
@@ -59,9 +59,43 @@ try:
                 cursor.execute(sql_export)
                 rows = cursor.fetchall()
                 for row in rows:
-                    # row.values() переє значення - а row лише ключі
-                    values = ', '.join([f"'{value}'" if isinstance(value, str) else str(value) for value in row.values()])
-                    f.write(f"INSERT INTO {table} VALUES ({values});\n")
+                    # values = ', '.join([f"'{value}'" if isinstance(value, str) else str(value) for value in row.values()])
+                    # f.write(f"INSERT INTO {table} VALUES ({values});\n")
+                    # values = ', '.join([f"'{value.hex()}'" if isinstance(value, bytes) else f"'{value}'" for value in row.values()])
+                    # values = ', '.join([f"'{value.hex().replace("'", "\\'")}'" if isinstance(value, bytes) else f"'{value.replace("'", "\\'")}'" for value in row.values()])
+                    # формируем список значений для каждой строки
+                    values = []
+                    for value in row.values():
+                        # Якщо значення є NULL, додати до списку значення 'NULL'
+                        if value is None:
+                            values.append('NULL')
+                        elif isinstance(value, bytes):
+                            value = value.hex()
+                            values.append(f"'{value}'")
+                        # Якщо значення є рядком, додати до списку лапки з екрануванням лапок всередині рядка
+                        elif isinstance(value, str):
+                            # values.append("'" + value.replace("'", "\\'") + "'")
+                            value = value.replace("'", "\\'")
+                            values.append(f"'{value}'")
+                        # Якщо значення є числом, додати до списку без лапок
+                        elif isinstance(value, (int, float)):
+                            values.append(f"{value}")
+                        else:
+                            values.append(f"'{value}'")
+                        # добавляем значение в список значений
+                        # values.append(f"'{value}'")
+
+                    # объединяем список значений в строку, разделяя их запятыми
+                    values = ', '.join(values)
+
+                    fields = ', '.join([f"`{key}`" for key in row.keys()])
+                    insert_query = f"INSERT INTO `{table}` ({fields}) VALUES ({values});\n"
+
+                    # додаємо вираз вставки даних до файлу
+                    f.write(insert_query)
+
+                # додаємо символ переведення рядка до файлу, щоб розділити таблиці
+                f.write('\n')
 
 except Exception as ex:
     print("Connection refused...")
@@ -70,7 +104,7 @@ finally:
     connect_export_1.close()
     print("Connection import CLOSE")
 
-# Import SQL
+# # Import SQL
 try:
     # Приєднуємось до бази для Import SQL
     connect_import_2 = pymysql.connect(**config['import_2'],
@@ -86,9 +120,9 @@ try:
             cursor.execute(f"DROP TABLE IF EXISTS {table};")
 
         # імпортуємо SQL Dump файл до бази даних
-        with open(output_file, 'r', encoding='utf-8') as f:
-            sql = f.read()
-            cursor.execute(sql)
+        # with open(output_file, 'r', encoding='utf-8') as f:
+        #     sql = f.read()
+        #     cursor.execute(sql)
 
 
 except Exception as ex:
