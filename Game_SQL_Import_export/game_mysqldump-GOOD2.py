@@ -7,10 +7,10 @@ import pymysql
 
 
 # куди зберігаємо SQL файл
-output_file = r'Game_SQL_Import_export\baza\dump_game0003312.sql'
+output_file = r'Game_SQL_Import_export\baza\test_2.sql'
 
 # SQL Зчитуємо параметри з конфігураційного файлу
-with open(r"C:\Gembling\Deepl_Python\Deepl_Python\Game_SQL_Import_export\configs\config_sql_import_export.json") as f:
+with open(r"Game_SQL_Import_export\configs\config_sql_import_export.json") as f:
     config = json.load(f)
 
 # Експорт таблиць
@@ -22,7 +22,13 @@ my_tables = ['modx_categories', 'modx_context', 'modx_context_setting',
              'modx_site_tmplvar_templates', 'modx_system_settings']
 
 # my_tables_str = ", ".join(my_tables)
-data = []
+
+# Функция для удаления экранирования лапок
+def remove_quotes(s):
+    if s[0] == "'" and s[-1] == "'":
+        return s[1:-1].replace("\\'", "'")
+    return s
+
 
 try:
     # Приєднуємось до бази для Export SQL
@@ -53,6 +59,8 @@ try:
                 # Отримуємо структуру таблиці
                 cursor.execute(f"SHOW CREATE TABLE {table}")
                 create_table_query = cursor.fetchone()['Create Table']
+                # Додаємо AUTO_INCREMENT до структури таблиці
+                create_table_query = create_table_query.replace(f"{table}(", f"{table}(`id` INT AUTO_INCREMENT PRIMARY KEY, ")
                 f.write(f"{create_table_query};\n")
 
                 # Експортуємо таблиці у SQL форматі
@@ -65,7 +73,7 @@ try:
 
                 # перебираємо кожен рядок таблиці
                 for row in rows:
-                    # values = ', '.join([f"'{value.hex()}'" if isinstance(value, bytes) else f"'{value}'" for value in row.values()])
+
                     # формируємо список значень для кожного рядка
                     values = []
                     for value in row.values():
@@ -100,15 +108,27 @@ try:
                 # об'єднуємо загальий список значень таблиці розділяючи комами та з нової
                 all_values = ', \n'.join(all_values)
 
+                # # Отримуємо індекси таблиці
+                # cursor.execute(f"SHOW INDEXES FROM {table};")
+                # indexes = cursor.fetchall()
+                # # Додаємо індекси до структури таблиці
+                # for index in indexes:
+                #     index_name = index['Key_name']
+                #     if index_name == 'PRIMARY':
+                #         continue
+                #     index_type = 'UNIQUE' if index['Non_unique'] == 0 else ''
+                #     index_columns = ', '.join(f"`{col['Column_name']}`" for col in cursor.execute(f"SHOW INDEX COLUMNS FROM {table} WHERE Key_name = '{index_name}' ORDER BY Seq_in_index;"))
+                #     index_table += f",\n{index_type} INDEX `{index_name}` ({index_columns})"
+
                 # fields = ', '.join([f"`{key}`" for key in row.keys()])
                 #     # insert_query = f"INSERT INTO `{table}` ({fields}) VALUES ({values});\n"
+            # Записуємо всі значення
             insert_query = f"INSERT INTO `{table}` ({fields}) VALUES\n{all_values};\n"
-
             # додаємо вираз вставки даних до файлу
             f.write(insert_query)
-
             # додаємо символ переведення рядка до файлу, щоб розділити таблиці
             f.write('\n')
+
 
 except Exception as ex:
     print("Connection refused...")
@@ -117,63 +137,69 @@ finally:
     connect_export_1.close()
     print("Connection Export CLOSE")
 
-# # Import SQL
-try:
-    # Приєднуємось до бази для Import SQL
-    connect_import_2 = pymysql.connect(**config['import_2'],
-                                       port=3306,
-                                       cursorclass=pymysql.cursors.DictCursor
-                                       )
-    print("succesfully connect Import base..")
+# Import SQL
+# try:
+#     # Приєднуємось до бази для Import SQL
+#     connect_import_2 = pymysql.connect(**config['import_2'],
+#                                         port=3306,
+#                                         cursorclass=pymysql.cursors.DictCursor
+#                                         )
+#     # sql_mode='NONE',  # режим совместимости SQL
+#     print("succesfully connect Import base..")
 
-    # Використання with забезпечує правильне закриття з'єднання з базою даних
-    with connect_import_2.cursor() as cursor:
+#     # Використання with забезпечує правильне закриття з'єднання з базою даних
+#     with connect_import_2.cursor() as cursor:
 
-        # Перебираємо та видаляємо таблиці з Бази данних
-        for table in my_tables:
-            cursor.execute(f"DROP TABLE IF EXISTS {table};")
+#         # Перебираємо та видаляємо таблиці з Бази данних
+#         for table in my_tables:
+#             cursor.execute(f"DROP TABLE IF EXISTS {table};")
 
-        # імпортуємо SQL Dump файл до бази даних
-        # with open(output_file, 'r', encoding='utf-8') as f:
-        #     sql = f.read()
-        #     cursor.execute(sql)
+#         # імпортуємо SQL Dump файл до бази даних
+#         # with open(output_file, 'r', encoding='utf-8') as f:
+#         #     sql = f.read()
+#         #     cursor.execute(sql)
 
-        # Відкриття файлу для читання
-        with open(output_file, 'r', encoding='utf8') as f:
-            # Читання SQL-запитів з файлу
-            sql_import = f.read()
+#         # Відкриття файлу для читання
+#         # with open(output_file, 'r', encoding='utf8') as f:
+#         #     # Читання SQL-запитів з файлу
+#         #     sql_import = f.read()
 
-            # Видаляємо екранування лапок
-            # sql_import = re.sub(r"\\'", "'", sql_import)
+#         #     # Видаляємо екранування лапок
+#         #     sql_import = re.sub(r"\\'", "'", sql_import)
 
-            # Розділяємо SQL-запити за допомогою ";"
-            # queries = sql_import.split(';')
+#         #     # Розділяємо SQL-запити за допомогою ";"
+#         #     queries = sql_import.split(';')
 
-            for query in sql_import:
-                # Якщо запит не є порожнім рядком
-                if query.strip():
-                    try:
-                        cursor.execute(query)
-                        connect_import_2.commit()
-                    except pymysql.Error as e:
-                        # Якщо виникає помилка "Таблиця вже існує"
-                        if e.args[0] == 1050:
-                            print(f"Таблиця {query.split()[2]} вже існує. Доповнюємо таблицю.")
-                            # Доповнюємо таблицю
-                            cursor.execute(re.sub(r"CREATE TABLE", "INSERT INTO", query))
-                            connect_import_2.commit()
-                        else:
-                            print(f"Помилка: {e}")
-                            connect_import_2.rollback()
+#         #     # Разделение файла на отдельные SQL-запросы
+#         #     # queries = re.findall(r';\n.*?(?=--|$)', sql_import, re.DOTALL)
 
-            # # Виконання кожного SQL-запиту
-            # for command in sql_import:
-            #     cursor.execute(command)
+#         #     for query in queries:
+#         #         # Якщо запит не є порожнім рядком
+#         #         if query.strip():
+#         #             try:
+#         #                 # Удаление экранирования лапок
+#         #                 query = re.sub(r"'(.*?)'", lambda x: remove_quotes(x.group()), query)
+#         #                 cursor.execute(query)
+#         #                 connect_import_2.commit()
+#         #             except pymysql.Error as e:
+#         #                 # Якщо виникає помилка "Таблиця вже існує"
+#         #                 if e.args[0] == 1050:
+#         #                     print(f"Таблиця {query.split()[2]} вже існує. Доповнюємо таблицю.")
+#         #                     # Доповнюємо таблицю
+#         #                     cursor.execute(re.sub(r"CREATE TABLE", "INSERT INTO", query))
+#         #                     connect_import_2.commit()
+#         #                 else:
+#         #                     print(f"Помилка: {e}")
+#         #                     connect_import_2.rollback()
+
+#             # # Виконання кожного SQL-запиту
+#             # for command in sql_import:
+#             #     cursor.execute(command)
 
 
-except Exception as ex:
-    print("Connection refused...")
-    print(ex)
-finally:
-    connect_import_2.close()
-    print("Connection import CLOSE")
+# except Exception as ex:
+#     print("Connection refused...")
+#     print(ex)
+# finally:
+#     connect_import_2.close()
+#     print("Connection import CLOSE")
