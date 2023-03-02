@@ -49,6 +49,7 @@ try:
             # Додаємо коментар до файлу
             f.write(f"-- Dump of tables {my_tables} \n\n")
 
+            # ЗНАЧЕННЯ - ДАНІ КОЖНОГО РЯДКА
             for table in my_tables:
 
                 # Додаємо коментар до таблиці
@@ -134,6 +135,46 @@ try:
                     index_list = ', \n'.join(index_list)
 
                     f.write(f"{index_list};\n\n")
+
+                # Получаем название поля с AUTO_INCREMENT
+                # cursor.execute(f"SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` \
+                #                 WHERE `TABLE_SCHEMA`='{config['export_1']['database']}' AND \
+                #                 `TABLE_NAME`='{table}' AND `EXTRA`='auto_increment'")
+                # auto_increment_column = cursor.fetchone()
+
+                # cursor.execute(f"SELECT AUTO_INCREMENT FROM information_schema.TABLES \
+                #                 WHERE TABLE_SCHEMA = '{config['export_1']['database']}' AND TABLE_NAME = '{table}'")
+
+
+
+
+
+                cursor.execute(f"SELECT TABLE_NAME, AUTO_INCREMENT \
+                                FROM information_schema.TABLES \
+                                WHERE TABLE_SCHEMA = '{config['export_1']['database']}' \
+                                AND TABLE_NAME = '{table}'")
+                cursor_auto = cursor.fetchall()
+
+                # записываем результаты запроса в дамп файл
+                for (table, auto_increment) in cursor_auto:
+                    f.write(f"ALTER TABLE `{table}` AUTO_INCREMENT = {auto_increment};\n")
+
+
+
+
+
+
+
+
+
+
+                # # Добавляем AUTO_INCREMENT, если он есть
+                # if auto_increment_column:
+                #     f.write(f"ALTER TABLE {table} MODIFY {auto_increment_column[0]} INT AUTO_INCREMENT;\n")
+
+                # Добавляем COMMIT
+                f.write("COMMIT;\n")
+
 
 
 except Exception as ex:

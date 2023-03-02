@@ -6,20 +6,15 @@ import json
 import pymysql
 
 
-# куди зберігаємо SQL файл
-output_file = r'Game_SQL_edit_modx_resources\baza\test_1.sql'
-
 # SQL Зчитуємо параметри з конфігураційного файлу
-with open(r"Game_SQL_edit_modx_resources\configs\config_sql_modx_resouses.json") as f:
+with open(r'SQL_clon_modx_resourse\configs\config_sql_modx_resouses.json') as f:
     config = json.load(f)
 
 # Експорт таблиць
-my_tables = ['modx_categories', 'modx_context', 'modx_context_setting',
-             'modx_media_sources_elements', 'modx_migx_configs',
-             'modx_migx_formtabs', 'modx_migx_formtab_fields',
-             'modx_site_content', 'modx_site_htmlsnippets', 'modx_site_templates',
-             'modx_site_tmplvars', 'modx_site_tmplvar_contentvalues',
-             'modx_site_tmplvar_templates', 'modx_system_settings']
+my_tables = ['modx_site_content']
+
+# Контексти та мови для перекладу
+context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lv","nl"]
 
 # modx_context_setting - настройки контекстов - проставить catalog id, site_start, site_url, nazva
 # modx_site_content - ресурсы сайта
