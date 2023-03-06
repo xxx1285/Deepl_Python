@@ -6,7 +6,7 @@ import json
 import pymysql
 from bs4 import BeautifulSoup
 import transliterate
-import datetime
+# import datetime
 import deepl
 
 
@@ -47,6 +47,7 @@ context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it",
 
 # Поля що потрібно перекласти
 translate_name = ['pagetitle','longtitle','description','menutitle']
+dont_translate = ['Aviator', 'The dog house']
 
 standart_nalashtuvannya = {
     'published': 0,
@@ -76,20 +77,25 @@ try:
     print("--> Deepl API - OK \n*************************************")
 
     with connect_database.cursor() as my_cursor:
-        # Выбор всех строк таблицы modx_site_content, где context = 'web'
+        # Выбор всех строк таблицы modx_site_content, где context = 'web' id = 75
         my_cursor.execute(f"SELECT * FROM modx_site_content WHERE `context_key` = '{context_web}' \
                             AND (`id` = 75 OR `template` IN (6,7,19))")
         rows_database = my_cursor.fetchall()
 
-        # перебираємо контексти - lang
+        # перебираємо контексти (язики) - lang
         for lang in context_and_lang:
-            # перебираємо кожен вибраний рядок в таблиці
+            # перебираємо кожен вибраний рядок в SQL таблиці
             for row in rows_database:
+
                 # Клонуємо рядок
                 new_row = row.copy()
 
-                # Змінюємо значення ключа context на поточне значення мови
+                # Змінюємо context на поточне значення мови
                 new_row['context_key'] = lang
+
+                for key, value in standart_nalashtuvannya.items():
+                    new_row[key] = value
+                # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
 
                 # randon секунди дати UNIX
                 random_time = random.choice([15150, 18300, 21500, 23700, 40320])
@@ -99,25 +105,46 @@ try:
 
                 new_create_date['pub_date'] = new_create_date['pub_date'] + random_time
                 new_row['pub_date'] = new_create_date['pub_date']
+                print(type(new_row))
 
                 # Перекладаємо поля використовуючи DEEPL
                 for name in translate_name:
-                    new_row[name] = translator.translate_text(new_row[name], target_lang=lang)
-                    print(new_row[name])
+                    # Замінюємо входження зі списку dont_translate на тег <keep>
+                    for word in dont_translate:
+                        new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
 
+                    translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+                    new_row[name] = str(translate)
+                    new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
+
+                TODO: АлИАС
+
+                TODO: Якщо Parent not 0 ???????????   або  Якщо is folder ???????
+
+                TODO: настройка контекста
+
+                TODO: Babel
+
+                TODO: modx_games_co
+
+
+
+
+
+
+
+
+                # for i in new_row:
+                #     print(i, new_row[i])
+
+                # print("3333")
 
 
                 xren += 1
                 print(str(xren) + ' - ' +str(new_row['pub_date']) + ' - ' + str(datetime.datetime.fromtimestamp(new_row['pub_date'])))
                 # print(datetime.datetime.fromtimestamp(new_row['pub_date']))
 
-                # for key, value in standart_nalashtuvannya.items():
-                #     new_row[key] = value
-                #     print(new_row)
-                #     print(new_row)
-                # print(new_row)
-                # print(new_row)
-                # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
+
 
 
 
