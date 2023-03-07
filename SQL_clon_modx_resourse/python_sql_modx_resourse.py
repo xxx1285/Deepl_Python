@@ -5,7 +5,7 @@ import re
 import json
 import pymysql
 from bs4 import BeautifulSoup
-import transliterate
+from unidecode import unidecode
 # import datetime
 import deepl
 
@@ -36,19 +36,29 @@ with open(r'SQL_clon_modx_resourse\configs\config_sql_Deepl.json') as f:
     modx_site_tmplvar_contentvalues     VNIMANIE - BABEL
     modx_games_co                       MIGX content Resourses
 """
-my_tables = ['modx_context_setting', 'modx_site_content', 'modx_site_tmplvar_contentvalues',
-             'modx_games_co']
+# my_tables = ['modx_context_setting', 'modx_site_content', 'modx_site_tmplvar_contentvalues',
+#              'modx_games_co']
 # my_tables_str = ", ".join(my_tables)
+
+"""
+
+    >>>>    modx_site_content
+
+"""
 
 # Контексти з якого копіюємо
 context_web = 'web'
+# Максимальний id в таблиці
+start_id = 200
 # Контексти та мови для перекладу
 context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lv","nl"]
-
+# Словник звязаних між собою EN Контекста та інших Ресурсів
+dict_id_clon_resouses = {}
 # Поля що потрібно перекласти
 translate_name = ['pagetitle','longtitle','description','menutitle']
+# Слова які не потрібно перекладати
 dont_translate = ['Aviator', 'The dog house']
-
+# Стандартні налаштувавання бази
 standart_nalashtuvannya = {
     'published': 0,
     'editedby': 0,
@@ -56,11 +66,24 @@ standart_nalashtuvannya = {
     'publishedon': 0,
     'publishedby': 0
 }
-# дата UNIX на даний час
-new_create_date = {
-    'createdon': int(time.time()),
-    'pub_date': int(time.time())
-}
+# дата UNIX на даний час для 'createdon': int(time.time()),'pub_date': int(time.time())
+# Або визначити самостійно - наприклад через місяць після запуску сайта
+new_create_date = {'createdon': int(time.time()),'pub_date': int(time.time())}
+
+"""
+
+    >>>>    modx_context_setting
+
+"""
+cazino_catalog_id = 6
+chan_locale = {'bg': '[[$bg_BG]]', 'cs': '[[$cs_CZ]]', 'da': '[[$da_DK]]', 'de': '[[$de_DE]]', 'el': '[[$el_GR]]',
+               'en': '[[$en_UK]]', 'es': '[[$es_ES]]', 'et': '[[$et_EE]]', 'fi': '[[$fi_FI]]', 'fr': '[[$fr_FR]]',
+               'hu': '[[$hu_HU]]', 'id': '[[$id_ID]]', 'it': '[[$it_IT]]', 'ja': '[[$ja_JP]]', 'lt': '[[$lt_LT]]',
+               'lv': '[[$lv_LV]]', 'nb': '[[$nb_NO]]', 'nl': '[[$nl_NL]]', 'pl': '[[$pl_PL]]', 'pt': '[[$pt_PT]]',
+               'ro': '[[$ro_RO]]', 'ru': '[[$ru_RU]]', 'sk': '[[$sk_SK]]', 'sl': '[[$sl_SL]]', 'sv': '[[$sv_SE]]',
+               'tr': '[[$tr_TR]]', 'uk': '[[$uk_UA]]',
+               'ar': '[[$ar_EG]]', 'az': '[[$az_AZ]]', 'kz': '[[$kz_KZ]]', 'uz': '[[$uz_UZ]]'
+               }
 
 
 try:
@@ -93,6 +116,10 @@ try:
                 # Змінюємо context на поточне значення мови
                 new_row['context_key'] = lang
 
+                # Змінюємо id збільшуючи на +1
+                new_row['id'] = start_id
+                start_id += 1
+
                 for key, value in standart_nalashtuvannya.items():
                     new_row[key] = value
                 # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
@@ -117,15 +144,27 @@ try:
                     new_row[name] = str(translate)
                     new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
 
-                TODO: АлИАС
+                # ALIAS - транслітерація
+                new_row['alias'] = unidecode(new_row['menutitle'].lower())
+                new_row['alias'] = re.sub(r'[^a-zA-Z0-9]+', '-', new_row['alias'])
+                new_row['alias'] = str(new_row['alias'] + '-s')
 
-                TODO: Якщо Parent not 0 ???????????   або  Якщо is folder ???????
+                new_row['uri'] = str(new_row['alias'] + '/')
 
-                TODO: настройка контекста
+                print(new_row['alias'])
+                print(new_row['uri'])
+                print(new_row)
+                print(new_row)
 
-                TODO: Babel
 
-                TODO: modx_games_co
+
+                # TODO: Якщо Parent not 0 ???????????   або  Якщо is folder ???????
+
+                # TODO: настройка контекста
+
+                # TODO: Babel
+
+                # TODO: modx_games_co
 
 
 
