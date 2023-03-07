@@ -51,7 +51,8 @@ context_web = 'web'
 # Максимальний id в таблиці
 start_id = 200
 # Контексти та мови для перекладу
-context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lv","nl"]
+context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lv","nl",
+                    "cs","da","ja","lt","nb","sk","sl","sv"]
 # Словник звязаних між собою EN Контекста та інших Ресурсів
 dict_id_clon_resouses = {}
 # Поля що потрібно перекласти
