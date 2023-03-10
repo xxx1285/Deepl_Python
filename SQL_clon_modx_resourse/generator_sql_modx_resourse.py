@@ -105,14 +105,12 @@ with connect_database.cursor() as my_cursor:
                         AND (`id` = 75 OR `template` IN (6,7,19))")
     rows_database = my_cursor.fetchall()
 
-    # перебираємо контексти (язики) - lang
-    for lang in context_and_lang:
+    for lang in context_and_lang: # перебираємо контексти (язики)
 
         # Структура id з new id щоб зробити (вложения) вкладення в структуру - та для AMP
         struktura_id_map = {}
 
-        # перебираємо кожен вибраний рядок в SQL таблиці
-        for row in rows_database:
+        for row in rows_database: # перебираємо кожен вибраний рядок в SQL таблиці
 
             # Клонуємо рядок
             new_row = row.copy()
@@ -178,14 +176,13 @@ with connect_database.cursor() as my_cursor:
 
             # SQL INSERT запись modx_site_content
             with connect_database.cursor() as cursor:
-                # Create a new record
-                sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row}) VALUES ({baza_value_new_row})"
+                # Create a new record or оновлюємо
+                sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row}) VALUES ({baza_value_new_row})\
+                               ON DUPLICATE KEY UPDATE {baza_key_new_row}"
                 cursor.execute(sql_resurs)
             connect_database.commit()
 
 
-            # (f"SELECT * FROM modx_site_content WHERE `context_key` = '{context_web}' \
-            #             AND (`id` = 75 OR `template` IN (6,7,19))")
 
             # TODO: настройка контекста
 

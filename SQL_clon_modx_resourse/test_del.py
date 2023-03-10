@@ -21,3 +21,21 @@ w = re.sub(r'[^a-zA-Z0-9]+-*$' , '', re.sub(r'[^a-zA-Z0-9]+', '-', w))
 print(s)
 print(d)
 print(w)
+
+
+
+
+
+
+
+
+
+chan_locale = {
+
+              'sv': '[[$sv_SE]]',
+
+               'ar': '[[$ar_EG]]', 'az': '[[$az_AZ]]', 'kz': '[[$kz_KZ]]', 'uz': '[[$uz_UZ]]'
+               }
+
+context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lt","lv","nl",
+                    "cs","da","ja","nb","sk","sl","sv"]
