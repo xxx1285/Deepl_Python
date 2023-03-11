@@ -38,7 +38,7 @@ with open(r'SQL_clon_modx_resourse\configs\config_sql_Deepl.json') as f:
 #              'modx_games_co']
 # my_tables_str = ", ".join(my_tables)
 
-# сайт для якого обробляємо - з слешем вкінці
+# TODO:сайт для якого обробляємо - з слешем вкінці
 my_site = "https://the-dog-house.org/"
 site_name = "The Dog House"
 
@@ -47,9 +47,9 @@ site_name = "The Dog House"
     >>>>    modx_site_content
 ##############################################
 """
-# Контексти з якого копіюємо
+# Контекст по замовчуванням (web == en) та з якого копіюємо
 context_web = 'web'
-# Максимальний id в таблиці
+# TODO: Максимальний id в таблиці
 start_id = 200
 # Контексти та мови для перекладу
 context_and_lang = ["ru","es"]
@@ -219,14 +219,16 @@ with connect_database.cursor() as my_cursor:
             # SQL INSERT запись modx_context_setting
             print(key)
             print(str(key))
+!!!! Назва ключа та дані ключа
             with connect_database.cursor() as cursor:
                 sql_babel = "INSERT INTO `modx_context_setting` (context_key, key, value, xtype, namespace, area, editedon) \
                             VALUES (%s, %s, %s, %s, %s, %s, %s) \
-                            ON DUPLICATE KEY UPDATE value = VALUES (value)"
+                            ON DUPLICATE KEY UPDATE value=VALUES(value), xtype=VALUES(xtype), namespace=VALUES(namespace), area=VALUES(area), editedon=VALUES(editedon)"
                 val = (lang, key, eval(key), 'textfield', 'core', 'language', 'NULL')
                 print(val)
                 cursor.execute(sql_babel, val)
             connect_database.commit()
+
 
 
 

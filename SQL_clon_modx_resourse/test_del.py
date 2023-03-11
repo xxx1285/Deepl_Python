@@ -39,3 +39,22 @@ chan_locale = {
 
 context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lt","lv","nl",
                     "cs","da","ja","nb","sk","sl","sv"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# context_and_lang = ["sv"]
