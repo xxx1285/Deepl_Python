@@ -203,29 +203,24 @@ with connect_database.cursor() as my_cursor:
             # TODO: modx_games_co
 
         # TODO: CONTEXT настройка контекста - modx_context_setting
-        base_url = '/' + lang + '/'
-        cazino_catalog_id = struktura_id_map[6]
-        chan_locale = locale_alternate[lang]
-        cultureKey = lang
-        error_page = struktura_id_map[2]
-        locale = locale_alternate[lang].replace("[[$", "").replace("]]", "")
-        site_name = site_name
-        site_start = struktura_id_map[1]
-        site_url = my_site + lang + '/'
+        keys_context_setting = {'base_url': f'/{lang}/',
+                                'cazino_catalog_id': struktura_id_map[6],
+                                'chan_locale': locale_alternate[lang],
+                                'cultureKey': lang,
+                                'error_page': struktura_id_map[2],
+                                'locale': locale_alternate[lang].replace("[[$", "").replace("]]", ""),
+                                'site_name': site_name,
+                                'site_start': struktura_id_map[1],
+                                'site_url': f'{my_site}{lang}/'
+                                }
 
-        keys_context_setting = (base_url, cazino_catalog_id, chan_locale, cultureKey, error_page, locale,
-                                site_name, site_start, site_url)
-        for key in keys_context_setting:
+        for key, value in keys_context_setting.items():
             # SQL INSERT запись modx_context_setting
-            print(key)
-            print(str(key))
-!!!! Назва ключа та дані ключа
             with connect_database.cursor() as cursor:
-                sql_babel = "INSERT INTO `modx_context_setting` (context_key, key, value, xtype, namespace, area, editedon) \
-                            VALUES (%s, %s, %s, %s, %s, %s, %s) \
-                            ON DUPLICATE KEY UPDATE value=VALUES(value), xtype=VALUES(xtype), namespace=VALUES(namespace), area=VALUES(area), editedon=VALUES(editedon)"
-                val = (lang, key, eval(key), 'textfield', 'core', 'language', 'NULL')
-                print(val)
+                sql_babel = "INSERT INTO `modx_context_setting` (`context_key`, `key`, `value`, `xtype`, `namespace`, `area`) \
+                            VALUES (%s, %s, %s, %s, %s, %s) \
+                            ON DUPLICATE KEY UPDATE value=VALUES(value), xtype=VALUES(xtype), namespace=VALUES(namespace), area=VALUES(area)"
+                val = (lang, key, value, 'textfield', 'core', 'language')
                 cursor.execute(sql_babel, val)
             connect_database.commit()
 
