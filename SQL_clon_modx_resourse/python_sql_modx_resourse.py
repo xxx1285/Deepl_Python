@@ -10,37 +10,40 @@ from unidecode import unidecode
 import deepl
 
 
-# функція що очищає або добавляє екранування - JSON
-def my_clean_string(string, escape=True):
-    if escape:
-        # Замінюємо спеціальні символи на їх екрановані еквіваленти
-        string = string.replace('/', '\/')
-    else:
-        # Видаляємо екранування спеціальних символів
-        string = string.replace('\\', '')
-        string = string.replace('\n', '')
-        string = string.replace('\t', '')
-        string = string.replace('&nbsp;', '')
+# функція що додає екранування - JSON
+def my_add_ekran_string(string):
+    string = string.replace('/', '\/')
     return string
+
+# функція що видаляє екранування та символи - JSON
+def my_clean_ekran_string(string):
+    string = string.replace('\\', '')
+    string = string.replace('&nbsp;', '')
+    return string
+
+
+# # функція що очищає або добавляє екранування - JSON
+# def my_clean_string(string, escape=True):
+#     if escape:
+#         # Замінюємо спеціальні символи на їх екрановані еквіваленти
+#         string = string.replace('/', '\/')
+#     else:
+#         # Видаляємо екранування спеціальних символів
+#         string = string.replace('\\', '')
+#         # string = string.replace('\n', '')
+#         # string = string.replace('\t', '')
+#         string = string.replace('&nbsp;', '')
+#     return string
+
 
 # SQL Зчитуємо параметри з конфігураційного файлу
 with open(r'SQL_clon_modx_resourse\configs\config_sql_Deepl.json') as f:
     config = json.load(f)
 
 
-"""
-    modx_context_setting                настройки контекстов (catalog id, site_start, site_url, nazva)
-    modx_site_content                   ресурсы сайта
-    modx_site_tmplvar_contentvalues     VNIMANIE - BABEL
-    modx_games_co                       MIGX content Resourses
-"""
-# my_tables = ['modx_context_setting', 'modx_site_content', 'modx_site_tmplvar_contentvalues',
-#              'modx_games_co']
-# my_tables_str = ", ".join(my_tables)
-
 # TODO:сайт для якого обробляємо - з слешем вкінці
-my_site = "https://the-dog-house.org/"
-site_name = "The Dog House"
+my_site = "https://gatesofolympus.club/"
+site_name = "Gates of Olympus"
 
 """
 #############################################
@@ -52,7 +55,7 @@ context_web = 'web'
 # TODO: Максимальний id в таблиці
 start_id = 200
 # Контексти та мови для перекладу
-context_and_lang = ["ru","es"]
+context_and_lang = ["uk"]
 # context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et",
 #                     "lt","lv","nl","cs","da","ja","nb","sk","sl","sv"]
 
@@ -63,7 +66,7 @@ dict_id_clon_resouses = {}
 translate_name = ['pagetitle','longtitle','description','menutitle']
 
 # Слова які не потрібно перекладати
-dont_translate = ['Aviator', 'The dog house']
+dont_translate = ['Aviator', 'The dog house', 'Gates of Olympus']
 
 # Стандартні налаштувавання бази
 standart_nalashtuvannya = {'published': 0,'editedby': 0,'editedon': 0,'publishedon': 0,'publishedby': 0}
@@ -139,69 +142,116 @@ with connect_database.cursor() as my_cursor:
             babel_baza_dict.setdefault(row['id'], {row['context_key']: row['id']})
             babel_baza_dict[row['id']].setdefault(new_row['context_key'], new_row['id'])
 
-            # # TODO: PARENT - Визначаємо структуру
-            # if new_row['parent'] != 0:
-            #     new_row['parent'] = struktura_id_map[new_row['parent']]
-            #     # print(str(row['parent']) + " - " + str(new_row['parent'])  + " : " + str(row['menutitle']))
+            # TODO: PARENT - Визначаємо структуру
+            if new_row['parent'] != 0:
+                new_row['parent'] = struktura_id_map[new_row['parent']]
+                # print(str(row['parent']) + " - " + str(new_row['parent'])  + " : " + str(row['menutitle']))
 
-            # # TODO: AMP -ID - Content налаштування
-            # if new_row['template'] == 7:
-            #     for key, value in struktura_id_map.items():
-            #         if str(key) == row['content']:
-            #             new_row['content'] = value
-            #             # print(str(row['id']) + " - " + str(new_row['id'])  + " : " + str(new_row['content']))
+            # TODO: AMP -ID - Content налаштування
+            if new_row['template'] == 7:
+                for key, value in struktura_id_map.items():
+                    if str(key) == row['content']:
+                        new_row['content'] = value
+                        # print(str(row['id']) + " - " + str(new_row['id'])  + " : " + str(new_row['content']))
 
-            # # TODO: Стандартні налаштування published-editedby-editedon-publishedon-publishedby
-            # for key, value in standart_nalashtuvannya.items():
-            #     new_row[key] = value
-            #     # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
+            # TODO: Стандартні налаштування published-editedby-editedon-publishedon-publishedby
+            for key, value in standart_nalashtuvannya.items():
+                new_row[key] = value
+                # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
 
-            # # TODO: Дата публікації
-            # # randon секунди дати UNIX
-            # random_time = random.choice([15150, 18300, 21500, 23700, 36200, 40320, 43800])
-            # random_pub_date = random.choice([1550, 2100, 2450, 3620, 4020, 5800])
+            # TODO: Дата публікації
+            # randon секунди дати UNIX
+            random_time = random.choice([15150, 18500, 21500, 23700, 36200, 40320, 43800, 65300])
+            random_pub_date = random.choice([1550, 2100, 2450, 3620, 4020, 5800])
 
-            # new_create_date['createdon'] = new_create_date['createdon'] + random_time
-            # new_row['createdon'] = new_create_date['createdon']
-            # new_create_date['pub_date'] = new_create_date['pub_date'] + random_time + random_pub_date
-            # new_row['pub_date'] = new_create_date['pub_date']
+            new_create_date['createdon'] = new_create_date['createdon'] + random_time
+            new_row['createdon'] = new_create_date['createdon']
+            new_create_date['pub_date'] = new_create_date['pub_date'] + random_time + random_pub_date
+            new_row['pub_date'] = new_create_date['pub_date']
 
-            # # TODO: TRANSLATE - Перекладаємо поля використовуючи DEEPL
-            # for name in translate_name:
-            #     if len(new_row[name]) > 0:
-            #         # Замінюємо входження зі списку dont_translate на тег <keep>
-            #         for word in dont_translate:
-            #             new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
-            #         translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
-            #         new_row[name] = str(translate)
-            #         new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
+            # TODO: TRANSLATE - Перекладаємо поля використовуючи DEEPL
+            for name in translate_name:
+                if len(new_row[name]) > 0:
+                    # Замінюємо входження зі списку dont_translate на тег <keep>
+                    for word in dont_translate:
+                        new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
+                    translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+                    new_row[name] = translate.text
+                    new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
 
-            # # TODO: ALIAS - транслітерація
-            # if len(new_row['menutitle']) > 0:
-            #     new_row['alias'] = unidecode(new_row['menutitle'].lower())
-            # else:
-            #     new_row['alias'] = unidecode(new_row['pagetitle'].lower())
-            # new_row['alias'] = re.sub(r'[^a-zA-Z0-9]+-*$' , '', re.sub(r'[^a-zA-Z0-9]+', '-', new_row['alias']))
-            # new_row['uri'] = str(new_row['alias'] + '/')
+            # TODO: ALIAS - транслітерація
+            if len(new_row['menutitle']) > 0:
+                new_row['alias'] = unidecode(new_row['menutitle'].lower())
+            else:
+                new_row['alias'] = unidecode(new_row['pagetitle'].lower())
+            new_row['alias'] = re.sub(r'[^a-zA-Z0-9]+-*$' , '', re.sub(r'[^a-zA-Z0-9]+', '-', new_row['alias']))
+            new_row['uri'] = str(new_row['alias'] + '/')
 
-            # # key - value словника new_row для запису в SQL
-            # baza_key_new_row = ", ".join([f"`{key}`" for key in new_row.keys()])
-            # baza_value_new_row = ", ".join([f"'{value}'" for value in new_row.values()])
-            # # print(str(row['id']) + " - " + str(new_row['id'])  + " : " + str(new_row['context_key']))
+            # key - value словника new_row для запису в SQL
+            baza_key_new_row = ", ".join([f"`{key}`" for key in new_row.keys()])
+            baza_value_new_row = ", ".join([f"'{value}'" for value in new_row.values()])
+            # print(str(row['id']) + " - " + str(new_row['id'])  + " : " + str(new_row['context_key']))
 
-            # # SQL INSERT запись modx_site_content
-            # with connect_database.cursor() as cursor:
-            #     # Create a new record
-            #     sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row}) VALUES ({baza_value_new_row})\
-            #                    ON DUPLICATE KEY UPDATE {baza_key_new_row}"
-            #     cursor.execute(sql_resurs)
-            # connect_database.commit()
-
-
+            # SQL INSERT запись modx_site_content
+            with connect_database.cursor() as cursor:
+                # Create a new record
+                sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row}) VALUES ({baza_value_new_row})\
+                               ON DUPLICATE KEY UPDATE {baza_key_new_row}"
+                cursor.execute(sql_resurs)
+            connect_database.commit()
 
 
+            ################################################################################################
             # TODO: modx_games_co
+            # Выбор всех строк таблицы modx_site_content, где context = 'web' id = 75
+            my_cursor.execute(f"SELECT * FROM modx_games_co WHERE `resource_id` = '{row['id']}'")
+            row_database_game = my_cursor.fetchone()
 
+            if row_database_game is not None:
+                # resource_id
+                row_database_game['resource_id'] = new_row['id']
+
+                # res_context_key - Контекст або мова
+                row_database_game['res_context_key'] = lang
+
+                # Перекладаємо поля без HTML використовуючи DEEPL
+                translate_title_games_co = ['res_pagetitle','res_longtitle','b1_comments_h2','b1_video_json_h2',
+                                            'b0_res_content','image_galer_h2','faq_block_h2','casino_geo']
+                for name in translate_title_games_co:
+                    if len(row_database_game[name]) > 1:
+                        for word in dont_translate:
+                            row_database_game[name] = row_database_game[name].replace(word, f"<keep>{word}</keep>")
+                        translate_title = translator.translate_text(row_database_game[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+                        row_database_game[name] = translate_title.text
+                        row_database_game[name] = row_database_game[name].replace("<keep>", "").replace("</keep>", "")
+
+                # Розбираємо та перекладаємо JSON поля DEEPL
+                translate_baza_keys = {'b1_content_json': {'h2_title':'','description':'','alt_img':''},
+                                    'b1_demo_iframe': {'demo_h2':'','alt_img':''},
+                                    'b1_content_table_json': {'td_1':'','td_2':''},
+                                    'b1_comments_json': {'h3_name_comment':'','p_review_comment':'','person_name':''},
+                                    'b1_video_json': {'video_name':'','video_description':''},
+                                    'image_galer_json': {'description':''},
+                                    'faq_block_json': {'question_text':'','answer_text':''}
+                                    }
+                for key, value in translate_baza_keys.items():
+                    if len(row_database_game[key]) > 0:  # перевіряємо чи не пусте JSON поле
+                        sql_json = json.loads(row_database_game[key])  # розпакуємо JSON
+                        for row_json in sql_json:
+                            for key_baza in value.keys():
+                                # Translate JSON if not NONE
+                                if len(row_json[key_baza]) > 0:
+                                    # Замінюємо входження зі списку dont_translate на тег <keep>
+                                    for word in dont_translate:
+                                        row_json[key_baza] = row_json[key_baza].replace(word, f"<keep>{word}</keep>")
+                                    # DEEPL переклад
+                                    translate_json = translator.translate_text(row_json[key_baza], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+                                    row_json[key_baza] = translate_json.text
+                                    row_json[key_baza] = row_json[key_baza].replace("<keep>", "").replace("</keep>", "")
+                    row_database_game[key] = sql_json
+
+
+        ################################################################################################
         # TODO: CONTEXT настройка контекста - modx_context_setting
         keys_context_setting = {'base_url': f'/{lang}/',
                                 'cazino_catalog_id': struktura_id_map[6],
@@ -225,96 +275,18 @@ with connect_database.cursor() as my_cursor:
             connect_database.commit()
 
 
-
-
-
-
-
+    ################################################################################################
     # TODO: Babel - INSERT SQL - modx_site_tmplvar_contentvalues
-    # for babel_row in babel_baza_dict.values():
-    #     result_value_str = ";".join([f"{key}:{value}" for key, value in babel_row.items()])
-    #     for contentid in babel_row.values():
-    #         # print(str(contentid) + " - " + result_str)
-    #         with connect_database.cursor() as cursor:
-    #             sql_babel = "INSERT INTO `modx_site_tmplvar_contentvalues` (tmplvarid, contentid, value) VALUES (%s, %s, %s) \
-    #                          ON DUPLICATE KEY UPDATE value = VALUES (value)"
-    #             val = (1, contentid, result_value_str)
-    #             cursor.execute(sql_babel, val)
-    #         connect_database.commit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            # for i in new_row:
-            #     print(i, new_row[i])
-
-            # print("3333")
-
-
-            # xren += 1
-            # print(str(xren) + ' - ' +str(new_row['pub_date']) + ' - ' + str(datetime.datetime.fromtimestamp(new_row['pub_date'])))
-            # print(datetime.datetime.fromtimestamp(new_row['pub_date']))
-
-
-
-
-    #     # Загальний список значень для таблиці
-    #     all_values = []
-
-    #     # перебираємо кожен рядок таблиці
-    #     for row in rows:
-    #         # values = ', '.join([f"'{value.hex()}'" if isinstance(value, bytes) else f"'{value}'" for value in row.values()])
-    #         # формируємо список значень для кожного рядка
-    #         values = []
-    #         for value in row.values():
-    #             # Якщо значення є NULL, додати до списку значення 'NULL'
-    #             if value is None:
-    #                 values.append('NULL')
-    #             elif isinstance(value, bytes):
-    #                 value = value.hex()
-    #                 values.append(f"'{value}'")
-    #             # Якщо значення є рядком, додати до списку лапки з екрануванням лапок всередині рядка
-    #             elif isinstance(value, str):
-    #                 # values.append("'" + value.replace("'", "\\'") + "'")
-    #                 # value = value.replace("'", "\\'").replace('"', '\\"')
-    #                 value = value.replace("'", "\\'")
-    #                 values.append(f"'{value}'")
-    #             # Якщо значення є числом, додати до списку без лапок
-    #             elif isinstance(value, (int, float)):
-    #                 values.append(f"{value}")
-    #             else:
-    #                 values.append(f"'{value}'")
-    #             # добавляем значение в список значений
-
-    #         # объединяем список значений в строку, разделяя их запятыми
-    #         values = ', '.join(values)
-
-    #         # об'єднуємо список полів до таблиці
-    #         fields = ', '.join([f"`{key}`" for key in row.keys()])
-
-    #         # Добаляємо значення в Загальний список значень для таблиці
-    #         all_values.append(f"({values})")
-
-    #     # об'єднуємо загальий список значень таблиці розділяючи комами та з нової
-    #     all_values = ', \n'.join(all_values)
-
-    #     # fields = ', '.join([f"`{key}`" for key in row.keys()])
-    #     #     # insert_query = f"INSERT INTO `{table}` ({fields}) VALUES ({values});\n"
-    # # insert_query = f"INSERT INTO `{table}` ({fields}) VALUES\n{all_values};\n"
-
+    for babel_row in babel_baza_dict.values():
+        result_value_str = ";".join([f"{key}:{value}" for key, value in babel_row.items()])
+        for contentid in babel_row.values():
+            # print(str(contentid) + " - " + result_str)
+            with connect_database.cursor() as cursor:
+                sql_babel = "INSERT INTO `modx_site_tmplvar_contentvalues` (tmplvarid, contentid, value) VALUES (%s, %s, %s) \
+                             ON DUPLICATE KEY UPDATE value = VALUES (value)"
+                val = (1, contentid, result_value_str)
+                cursor.execute(sql_babel, val)
+            connect_database.commit()
 
 # except Exception as ex:
 #     print("Connection refused...")
