@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from unidecode import unidecode
 import datetime
 import deepl
+import csv
+import os
 
 
 # функція що додає екранування - JSON
@@ -19,8 +21,9 @@ def my_add_ekran_string(string):
 
 # функція що видаляє екранування та символи - JSON
 def my_clean_ekran_string(string):
-    string = string.replace('\\', '')
-    string = string.replace('&nbsp;', '')
+    string = string.replace('\n', '')
+    string = string.replace('\t', '')
+    string = string.replace('"', '')
     return string
 
 
@@ -46,6 +49,7 @@ with open(r'SQL_clon_modx_resourse\configs\config_sql_Deepl.json') as f:
 # TODO:сайт для якого обробляємо - з слешем вкінці
 my_site = "https://gatesofolympus.club/"
 site_name = "Gates of Olympus"
+csv_url_file = r"SQL_clon_modx_resourse\csv\gatesofolympus_club.csv"  # !!!!!! СТВОРИ ВРУЧНУ ФАЙЛ
 
 """
 #############################################
@@ -178,15 +182,17 @@ with connect_database.cursor() as my_cursor:
             new_row['pub_date'] = new_create_date['pub_date']
             print(str(lang) + ' - ' + str(new_row['id']) + ': ' + str(datetime.datetime.fromtimestamp(new_row['pub_date'])))
 
-            # TRANSLATE - Перекладаємо поля використовуючи DEEPL
-            for name in translate_name:
-                if len(new_row[name]) > 0:
-                    # Замінюємо входження зі списку dont_translate на тег <keep>
-                    for word in dont_translate:
-                        new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
-                    translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
-                    new_row[name] = translate.text
-                    new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
+            # # TRANSLATE - Перекладаємо поля використовуючи DEEPL
+            # for name in translate_name:
+            #     if len(new_row[name]) > 0:
+            #         # Замінюємо входження зі списку dont_translate на тег <keep>
+            #         for word in dont_translate:
+            #             new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
+            #         translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+            #         new_row[name] = translate.text
+            #         new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
+            #         # видаляэмо - \n, \t, "
+            #         new_row[name] = my_clean_ekran_string(new_row[name])
 
             # ALIAS - транслітерація
             if len(new_row['menutitle']) > 0:
@@ -203,7 +209,6 @@ with connect_database.cursor() as my_cursor:
             baza_key_new_row = ", ".join([f"`{key}`" for key in new_row.keys()])
             baza_value_new_row = tuple(new_row.values())
             baza_sql_dublikat = ", ".join([f"`{key}`=VALUES(`{key}`)" for key in new_row.keys()])
-
             with connect_database.cursor() as cursor:
                 # Create a new record
                 sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row})\
@@ -212,11 +217,24 @@ with connect_database.cursor() as my_cursor:
                 cursor.execute(sql_resurs)
             connect_database.commit()
 
+            # CSV
+            csv_id = 0
+            with open(csv_url_file, 'w', newline='', encoding='utf-8') as file:
+                field_names = ['num', 'id', 'menutitle', 'url']
+                csv_writer = csv.DictWriter(file, fieldnames=field_names)
+                csv_writer.writeheader()
+                csv_writer.writerow({'num': csv_id,
+                                     'id': new_row['id'],
+                                     'menutitle': new_row['menutitle'],
+                                     'url': my_site + new_row['uri'],
+                                     })
+            csv_id += 1
 
 
             ################################################################################################
             # TODO: modx_games_co
             ################################################################################################
+
             # Выбор всех строк таблицы modx_site_content, где context = 'web' id = 75
             my_cursor.execute(f"SELECT * FROM modx_games_co WHERE `resource_id` = '{row['id']}'")
             row_database_game = my_cursor.fetchone()
@@ -264,6 +282,8 @@ with connect_database.cursor() as my_cursor:
                                     translate_json = translator.translate_text(row_json[key_baza], tag_handling='xml', ignore_tags='keep', target_lang=lang)
                                     row_json[key_baza] = translate_json.text
                                     row_json[key_baza] = row_json[key_baza].replace("<keep>", "").replace("</keep>", "")
+                                    # видаляэмо - \n, \t, "
+                                    row_json[key_baza] = my_clean_ekran_string(row_json[key_baza])
 
                             row_database_game[key] = json.dumps(sql_json)
                             #######################
@@ -287,6 +307,8 @@ with connect_database.cursor() as my_cursor:
 
         ################################################################################################
         # TODO: CONTEXT настройка контекста - modx_context_setting
+        ################################################################################################
+
         keys_context_setting = {'base_url': f'/{lang}/',
                                 'cazino_catalog_id': struktura_id_map[6],
                                 'chan_locale': locale_alternate[lang],
@@ -311,6 +333,21 @@ with connect_database.cursor() as my_cursor:
 
     ################################################################################################
     # TODO: Babel - INSERT SQL - modx_site_tmplvar_contentvalues
+    ################################################################################################
+
+    # Додамо вручну РУ - якщо існує
+    # ru_versiya = {1: {'ru': 104}, 3: {'ru': 107}, 4: {'ru': 109}, 5: {'ru': 121}, 6: {'ru': 111}, 30: {'ru': 113},
+    #               21: {'ru': 112}, 124: {'ru': 128}}
+
+    # ru_versiya_keys = ru_versiya.keys()
+
+    # for key in ru_versiya_keys:
+    #     if key in babel_baza_dict:
+    #         babel_baza_dict[key].update(ru_versiya[key])
+    #     else:
+    #         babel_baza_dict[key] = ru_versiya[key]
+    ##################################################################################################
+
     for babel_row in babel_baza_dict.values():
         # перебираэмо словник контекстів та звязаних id
         result_value_str = ";".join([f"{key}:{value}" for key, value in babel_row.items()])
