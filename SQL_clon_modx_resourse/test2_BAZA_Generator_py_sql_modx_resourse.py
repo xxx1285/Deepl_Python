@@ -23,22 +23,8 @@ def my_add_ekran_string(string):
 def my_clean_ekran_string(string):
     string = string.replace('\n', '')
     string = string.replace('\t', '')
-    string = string.replace('"', '')
+    string = string.replace('&nbsp;', '')
     return string
-
-
-# # функція що очищає або добавляє екранування - JSON
-# def my_clean_string(string, escape=True):
-#     if escape:
-#         # Замінюємо спеціальні символи на їх екрановані еквіваленти
-#         string = string.replace('/', '\/')
-#     else:
-#         # Видаляємо екранування спеціальних символів
-#         string = string.replace('\\', '')
-#         # string = string.replace('\n', '')
-#         # string = string.replace('\t', '')
-#         string = string.replace('&nbsp;', '')
-#     return string
 
 
 # SQL Зчитуємо параметри з конфігураційного файлу
@@ -64,8 +50,9 @@ start_id = 200
 amp_templates = 7
 amp_catalog = 14
 # Контексти та мови для перекладу
-context_and_lang = ["ru","es","pl","pt-br","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et",
-                    "lt","lv","nl","cs","da","ja","nb","sk","sl","sv"]
+context_and_lang = ["ru"]
+# context_and_lang = ["ru","es","pl","pt-br","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et",
+#                     "lt","lv","nl","cs","da","ja","nb","sk","sl","sv"]
 # web,ru,es,pl,pt-br,fr,id,el,de,tr,hu,uk,it,ro,bg,fi,et,lt,lv,nl,cs,da,ja,nb,sk,sl,sv,az,kz,ar,uz
 
 
@@ -186,9 +173,9 @@ with connect_database.cursor() as my_cursor:
                     # {**new_row, **{key: value for key, value in standart_nalashtuvannya.items()}}
 
                 # pub_date - Дата публікації
-                # randon секунди дати UNIX
-                random_time = random.choice([15150, 18500, 21500, 23700, 36200, 40320, 43800, 65300, 99300])
-                random_pub_date = random.choice([1550, 2100, 2450, 3620, 4020, 5800])
+                # randon секунди дати UNIX ( 6 годин - це 21000)
+                random_time = random.choice([17790, 18150, 18500, 22850, 23700, 42320])
+                random_pub_date = random.choice([1350, 2450])
 
                 new_create_date['createdon'] = new_create_date['createdon'] + random_time
                 new_row['createdon'] = new_create_date['createdon']
@@ -227,16 +214,16 @@ with connect_database.cursor() as my_cursor:
                 struktura_id_alias_map[new_row['id']] = my_site + lang + '/'+ new_row['uri']
 
                 # SQL INSERT запись modx_site_content
-                # baza_key_new_row = ", ".join([f"`{key}`" for key in new_row.keys()])
-                # baza_value_new_row = tuple(new_row.values())
-                # baza_sql_dublikat = ", ".join([f"`{key}`=VALUES(`{key}`)" for key in new_row.keys()])
-                # with connect_database.cursor() as cursor:
-                #     # Create a new record
-                #     sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row})\
-                #                     VALUES {baza_value_new_row} \
-                #                     ON DUPLICATE KEY UPDATE {baza_sql_dublikat}"
-                #     cursor.execute(sql_resurs)
-                # connect_database.commit()
+                baza_key_new_row = ", ".join([f"`{key}`" for key in new_row.keys()])
+                baza_value_new_row = tuple(new_row.values())
+                baza_sql_dublikat = ", ".join([f"`{key}`=VALUES(`{key}`)" for key in new_row.keys()])
+                with connect_database.cursor() as cursor:
+                    # Create a new record
+                    sql_resurs = f"INSERT INTO `modx_site_content` ({baza_key_new_row})\
+                                    VALUES {baza_value_new_row} \
+                                    ON DUPLICATE KEY UPDATE {baza_sql_dublikat}"
+                    cursor.execute(sql_resurs)
+                connect_database.commit()
 
                 # CSV
                 if new_row['id'] == struktura_id_map[1]:  # URI
@@ -314,16 +301,57 @@ with connect_database.cursor() as my_cursor:
                                         # row_json[key_baza] = row_json[key_baza].replace("<keep>", "").replace("</keep>", "")
                                         # видаляэмо - \n, \t, "
                                         row_json[key_baza] = my_clean_ekran_string(row_json[key_baza])
+                                        if key == 'b1_comments_json' or key == 'faq_block_json':
+                                            row_json[key_baza] = row_json[key_baza].replace('"', '')
+
+
+                                        # Визначаємо регулярний вираз для пошуку посилань
+                                        pattern = r'<a\s+href="(.*?)".*?>.*?</a>'
+                                        #re.search шукає перше входження відповідності регулярному виразу у заданому рядку, повертає об'єкт "Match"
+                                        if re.search(pattern, row_json[key_baza]):
+                                            # re.findall знаходить всі невкладені відповідності регулярному виразу та повертає список
+                                            for match in re.findall(pattern, row_json[key_baza]):
+                                                # Перебираємо всі ключі та значення зі структури аліасів
+                                                for key_alias_map, value_alias_map in struktura_id_alias_map.items():
+                                                    # Якщо знайдено відповідне значення аліасу, то замінюємо посилання
+                                                    if match == value_alias_map:
+                                                        print(row_json[key_baza])
+                                                        map_key = struktura_id_map[key_alias_map]
+                                                        # Отримуємо нове посилання за допомогою ключа зі структури
+                                                        new_href = struktura_id_alias_map.get(map_key, match)
+                                                        # Замінюємо оригінальне посилання на нове
+                                                        row_json[key_baza] = row_json[key_baza].replace(match, new_href)
+                                                        print(row_json[key_baza])
+                                                        break
 
 
 
-                                        soup = BeautifulSoup(row_json[key_baza], 'html.parser')
-                                        a_tag = soup.find('a')
-                                        href = a_tag['href']
-                                        for key_alias_map, value_alias_map in struktura_id_alias_map.items():
-                                            if href == value_alias_map:
-                                                map_key = struktura_id_map[key_alias_map]
-                                                href = struktura_id_alias_map[map_key]
+                                        #####################################################
+                                        # soup = BeautifulSoup(row_json[key_baza], 'html.parser')
+
+                                        # for a_soup in soup.find_all('a'):
+                                        # # a_tag = soup.find('a')
+                                        #     if a_soup is not None and 'href' in a_soup.attrs:
+                                        #         href = a_soup['href']
+                                        #         print(href)
+                                        #         if href in struktura_id_alias_map.values():
+                                        #             for key_alias_map, value_alias_map in struktura_id_alias_map.items():
+                                        #                 if href == value_alias_map:
+                                        #                     map_key = struktura_id_map[key_alias_map]
+                                        #                     new_href = struktura_id_alias_map.get(map_key, href)
+                                        #                     a_soup['href'] = new_href
+                                        #                     a_soup.replace_with(str(a_soup))
+                                        #                     # href = struktura_id_alias_map[map_key]
+                                        #                     # a_soup['href'].replace_with(href)
+                                        #                     print(new_href)
+                                        #                     print(a_soup['href'])
+                                        #                     break
+                                        #         print(row_json[key_baza])
+                                        #         # print(soup.prettify())
+                                        # print(str(soup))
+                                        # print(row_json[key_baza])
+                                        #######################################################################
+
                                         # if href in struktura_id_alias_map.values():
                                         #     key_alias_map = list(struktura_id_alias_map.keys())[list(struktura_id_alias_map.values()).index(href)]
                                         #     print(key_alias_map)

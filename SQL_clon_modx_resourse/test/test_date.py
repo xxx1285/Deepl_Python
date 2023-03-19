@@ -20,7 +20,10 @@ print(str(date2) + ' +12000')
 print(date3)
 
 # result = 1678208220 + random_number
-print(str('fffff ') + str(datetime.datetime.fromtimestamp(1678154526)))
+print(str('fffff ') + str(datetime.datetime.fromtimestamp(1679152191)))
+print(str('fffff ') + str(datetime.datetime.fromtimestamp(1679152191 + 21000)))
 
 aaaa = int(time.time()) + random.choice([15150, 21500, 40320])
 print(aaaa)
+aaaa1 = int(time.time())
+print(aaaa1)
