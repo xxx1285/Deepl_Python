@@ -2,6 +2,7 @@
 *.csv
 *.zip
 *.sql
+*.json
 /config/*
 config.py
 *config*
