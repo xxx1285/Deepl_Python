@@ -20,7 +20,7 @@ link_json_data = []
 with open(r'Bot_link_Analizator_site_request\csv\Redic-Analizatori.csv', newline='') as csvfile:
     data = csv.reader(csvfile, delimiter=';', quotechar=' ')
     # збереження даних у CSV файл
-    with open(r'Bot_link_Analizator_site_request\csv\new_Redic-Analizatori_2.csv', 'w', newline='', encoding='utf-8') as new_csv:
+    with open(r'Bot_link_Analizator_site_request\csv\new_Redic-Analizatori_3.csv', 'w', newline='', encoding='utf-8') as new_csv:
         field_names = ['csv_id', 'url', 'kod', 'error_key']
         csv_writer = csv.DictWriter(new_csv, fieldnames=field_names)
         csv_writer.writeheader()
@@ -42,7 +42,7 @@ with open(r'Bot_link_Analizator_site_request\csv\Redic-Analizatori.csv', newline
                     response.raise_for_status()
                     # error_key = 'OK'
                     kod = 200
-                    response_title = requests.get(f'{new_value}', headers=headers, timeout=5).text
+                    response_title = requests.get(f'{new_value}', headers=headers, timeout=3).text
                     soup = BeautifulSoup(response_title, 'lxml')
                     error_key = soup.find('title').text
                     print(error_key)
