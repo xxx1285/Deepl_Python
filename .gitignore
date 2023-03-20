@@ -5,7 +5,6 @@
 *.json
 /config/*
 config.py
-*config*
 /temp
 *.txt
 /*SEO*
