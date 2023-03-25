@@ -65,7 +65,7 @@ start_id = 0
 translate_name = ['pagetitle','menutitle']
 # translate_name = ['pagetitle','longtitle','description','menutitle']
 
-# TODO: Слова які не потрібно перекладати
+# TODO: Слова які не потрібно перекладати 'Aviator', 'The dog house', 'Gates of Olympus'
 dont_translate = ['Aviator', 'The dog house', 'Gates of Olympus']
 
 # Стандартні налаштувавання бази
@@ -120,6 +120,9 @@ with connect_database.cursor() as my_cursor:
     rows_database = my_cursor.fetchall()
 
     # Мах id в таблиці
+    # lambda x: x['id']: це анонімна (lambda) функція, яка приймає на вхід один аргумент x
+    # (в нашому випадку, словник зі списку freadf) і повертає значення за ключем 'id'.
+    # Ми створюємо цю функцію, щоб вказати, які значення ми хочемо порівнювати під час пошуку максимального значення
     max_id = max(rows_database, key=lambda x: x['id'])['id']
 
     # CSV створюємо файл для запису
@@ -197,7 +200,9 @@ with connect_database.cursor() as my_cursor:
                 #     if len(new_row[name]) > 0:
                 #         # Замінюємо входження зі списку dont_translate на тег <keep>
                 #         for word in dont_translate:
-                #             new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
+                #             #new_row[name] = new_row[name].replace(word, f"<keep>{word}</keep>")
+                #             # без врахування регістру
+                #             new_row[name] = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", new_row[name])
                 #         translate = translator.translate_text(new_row[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
                 #         new_row[name] = translate.text
                 #         new_row[name] = new_row[name].replace("<keep>", "").replace("</keep>", "")
@@ -280,7 +285,8 @@ with connect_database.cursor() as my_cursor:
                     # for name in translate_title_games_co:
                     #     if len(row_database_game[name]) > 1:
                     #         for word in dont_translate:
-                    #             row_database_game[name] = row_database_game[name].replace(word, f"<keep>{word}</keep>")
+                    #             # row_database_game[name] = row_database_game[name].replace(word, f"<keep>{word}</keep>")
+                    #             row_database_game[name] = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", row_database_game[name])
                     #         translate_title = translator.translate_text(row_database_game[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
                     #         row_database_game[name] = translate_title.text
                     #         row_database_game[name] = row_database_game[name].replace("<keep>", "").replace("</keep>", "")
@@ -303,7 +309,8 @@ with connect_database.cursor() as my_cursor:
                     #                 if len(row_json[key_baza]) > 0:
                     #                     # Замінюємо входження зі списку dont_translate на тег <keep>
                     #                     for word in dont_translate:
-                    #                         row_json[key_baza] = row_json[key_baza].replace(word, f"<keep>{word}</keep>")
+                    #                         # row_json[key_baza] = row_json[key_baza].replace(word, f"<keep>{word}</keep>")
+                    #                         row_json[key_baza] = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", row_json[key_baza])
                     #                     # # DEEPL переклад
                     #                     # translate_json = translator.translate_text(row_json[key_baza], tag_handling='xml', ignore_tags='keep', target_lang=lang)
                     #                     # row_json[key_baza] = translate_json.text

@@ -8,19 +8,17 @@
 # print(dict_id_clon_resouses)
 import re
 
-s = "aviator aviator-gorup---"
-s = re.sub(r'-+$', '', s)
+dont_translate = ['Aviator', 'The dog house', 'Gates of Olympus']
 
-d = "aviator aviator-gorup---"
-d = re.sub(r'[^a-zA-Z0-9]+', '-', d)
+frex = "I love aviator and the Dog House, but my favorite is Gates OF olympus. GATES of olympus in KYiv"
+ # Замінюємо входження зі списку dont_translate на тег <keep>
+for word in dont_translate:
+    # frex2 = frex.replace(word, f"<keep>{word}</keep>")
+    frex = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", frex)
 
-w = "aviator aviator-gorup---"
-w = re.sub(r'[^a-zA-Z0-9]+-*$' , '', re.sub(r'[^a-zA-Z0-9]+', '-', w))
 
-
-print(s)
-print(d)
-print(w)
+# print(frex2)
+print(frex)
 
 
 
@@ -30,15 +28,41 @@ print(w)
 
 
 
-chan_locale = {
 
-              'sv': '[[$sv_SE]]',
 
-               'ar': '[[$ar_EG]]', 'az': '[[$az_AZ]]', 'kz': '[[$kz_KZ]]', 'uz': '[[$uz_UZ]]'
-               }
 
-context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lt","lv","nl",
-                    "cs","da","ja","nb","sk","sl","sv"]
+
+# s = "aviator aviator-gorup---"
+# s = re.sub(r'-+$', '', s)
+
+# d = "aviator aviator-gorup---"
+# d = re.sub(r'[^a-zA-Z0-9]+', '-', d)
+
+# w = "aviator aviator-gorup---"
+# w = re.sub(r'[^a-zA-Z0-9]+-*$' , '', re.sub(r'[^a-zA-Z0-9]+', '-', w))
+
+
+# print(s)
+# print(d)
+# print(w)
+
+
+
+
+
+
+
+
+
+# chan_locale = {
+
+#               'sv': '[[$sv_SE]]',
+
+#                'ar': '[[$ar_EG]]', 'az': '[[$az_AZ]]', 'kz': '[[$kz_KZ]]', 'uz': '[[$uz_UZ]]'
+#                }
+
+# context_and_lang = ["ru","es","pl","pt","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et","lt","lv","nl",
+#                     "cs","da","ja","nb","sk","sl","sv"]
 
 
 
