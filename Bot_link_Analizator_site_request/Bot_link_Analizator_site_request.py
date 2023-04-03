@@ -1,4 +1,6 @@
-
+"""
+    Перебираємо всі аналізатори та WHOIS and перевіряємо свої сайти
+"""
 
 import requests
 import csv
@@ -7,8 +9,14 @@ import re
 import os
 from bs4 import BeautifulSoup
 
-my_site_analiz = 'dynamiteminergames.com'
+###############################################################################
+###############################################################################
+
+my_site_analiz = 'the-dog-house.org'
 del_site = 'fijisportclub.ru'
+
+###############################################################################
+###############################################################################
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36\
            (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
@@ -38,13 +46,13 @@ with open(r'Bot_link_Analizator_site_request\csv\Redic-Analizatori.csv', newline
 
                 # индексируем ссылку
                 try:
-                    response = requests.get(f'{new_value}', headers=headers, timeout=5)
+                    response = requests.get(f'{new_value}', headers=headers, timeout=10)
                     response.raise_for_status()
                     # error_key = 'OK'
                     kod = 200
                     response_title = requests.get(f'{new_value}', headers=headers, timeout=3).text
                     soup = BeautifulSoup(response_title, 'lxml')
-                    error_key = soup.find('title').text
+                    error_key = soup.find('title').text[:25]
                     print(error_key)
                 except requests.exceptions.Timeout:
                     error_key = 'Запит не відповів за встановлений таймаут'
@@ -75,9 +83,5 @@ with open(r'Bot_link_Analizator_site_request\json\Redic-Analizatori.json', 'w') 
     json.dump(link_json_data, jsonfile)
 
 print('OLL GOOD')
-
-
-
-
 
 # response = requests.post(url, params=params, data=data)
