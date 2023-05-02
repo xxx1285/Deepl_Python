@@ -38,8 +38,7 @@ with open(r'SQL_clon_modx_resourse\configs\config_sql_Deepl.json') as f:
 my_site = "https://gatesofolympus.club/"
 site_name = "Gates of Olympus"
 # футер настройка - перекласти на багато мов
-footer_allrights = 'All rights to the "Gates of Olympus" brand, trademark and game are owned by Pragmatic play \
-                    <a href="https://www.pragmaticplay.com/en/about-us/">https://www.pragmaticplay.com/</a>'
+footer_allrights = 'All rights to the "Gates of Olympus" brand, trademark and game are owned by Pragmatic play'
 
 csv_url_file = r"SQL_clon_modx_resourse\csv\gatesofolympus_club.csv"  # !!!!!! СТВОРИ ВРУЧНУ ФАЙЛ
 
@@ -157,7 +156,7 @@ with connect_database.cursor() as my_cursor:
                 # Клонуємо рядок
                 new_row = row.copy()
 
-                # Змінюємо context на поточне значення мови
+                # Змінюємо context (по стандарту - web) на поточне значення мови
                 new_row['context_key'] = lang
 
                 # ID - Визначаємо новий id та записуємо в словник, Змінюємо id збільшуючи на +1
@@ -369,36 +368,37 @@ with connect_database.cursor() as my_cursor:
             # # TODO: CONTEXT настройка контекста - modx_context_setting
             # ################################################################################################
 
-            # keys_context_setting = {'base_url': f'/{lang}/',
-            #                         'cazino_catalog_id': struktura_id_map[6],
-            #                         'chan_locale': locale_alternate[lang],
-            #                         'cultureKey': lang,
-            #                         'error_page': struktura_id_map[2],
-            #                         'locale': locale_alternate[lang].replace("[[$", "").replace("]]", ""),
-            #                         'site_name': site_name,
-            #                         'site_start': struktura_id_map[1],
-            #                         'site_url': f'{my_site}{lang}/'
-            #                         }
-            # # TRANSLATE - Перекладаємо поля без HTML використовуючи DEEPL
-            # translate_title_games_co = [footer_allrights]
-            # for name in translate_title_games_co:
-            #     if len(row_database_game[name]) > 1:
-            #         for word in dont_translate:
-            #             # row_database_game[name] = row_database_game[name].replace(word, f"<keep>{word}</keep>")
-            #             row_database_game[name] = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", row_database_game[name])
-            #         translate_title = translator.translate_text(row_database_game[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
-            #         row_database_game[name] = translate_title.text
-            #         row_database_game[name] = row_database_game[name].replace("<keep>", "").replace("</keep>", "")
+            keys_context_setting = {'base_url': f'/{lang}/',
+                                    'cazino_catalog_id': struktura_id_map[6],
+                                    'chan_locale': locale_alternate[lang],
+                                    'cultureKey': lang,
+                                    'error_page': struktura_id_map[2],
+                                    'locale': locale_alternate[lang].replace("[[$", "").replace("]]", ""),
+                                    'site_name': site_name,
+                                    'site_start': struktura_id_map[1],
+                                    'site_url': f'{my_site}{lang}/'
+                                    }
+            # TRANSLATE - контекст параметри через DEEPL
+            # ???????????????????????????????????????????????????????????????????????????????
+            translate_context_param = [footer_allrights]
+            for name in translate_context_param:
+                if len(row_database_game[name]) > 1:
+                    for word in dont_translate:
+                        # row_database_game[name] = row_database_game[name].replace(word, f"<keep>{word}</keep>")
+                        row_database_game[name] = re.sub(f'(?i){re.escape(word)}', f"<keep>{word}</keep>", row_database_game[name])
+                    translate_title = translator.translate_text(row_database_game[name], tag_handling='xml', ignore_tags='keep', target_lang=lang)
+                    row_database_game[name] = translate_title.text
+                    row_database_game[name] = row_database_game[name].replace("<keep>", "").replace("</keep>", "")
 
-            # for key, value in keys_context_setting.items():
-            #     # SQL INSERT запись modx_context_setting
-            #     with connect_database.cursor() as cursor_set:
-            #         sql_babel = "INSERT INTO `modx_context_setting` (`context_key`, `key`, `value`, `xtype`, `namespace`, `area`) \
-            #                     VALUES (%s, %s, %s, %s, %s, %s) \
-            #                     ON DUPLICATE KEY UPDATE value=VALUES(value), xtype=VALUES(xtype), namespace=VALUES(namespace), area=VALUES(area)"
-            #         val = (lang, key, value, 'textfield', 'core', 'language')
-            #         cursor_set.execute(sql_babel, val)
-            #     connect_database.commit()
+            for key, value in keys_context_setting.items():
+                # SQL INSERT запись modx_context_setting
+                with connect_database.cursor() as cursor_set:
+                    sql_babel = "INSERT INTO `modx_context_setting` (`context_key`, `key`, `value`, `xtype`, `namespace`, `area`) \
+                                VALUES (%s, %s, %s, %s, %s, %s) \
+                                ON DUPLICATE KEY UPDATE value=VALUES(value), xtype=VALUES(xtype), namespace=VALUES(namespace), area=VALUES(area)"
+                    val = (lang, key, value, 'textfield', 'core', 'language')
+                    cursor_set.execute(sql_babel, val)
+                connect_database.commit()
 
 
     ################################################################################################
@@ -418,17 +418,17 @@ with connect_database.cursor() as my_cursor:
     #         babel_baza_dict[key] = ru_versiya[key]
     ##################################################################################################
 
-    # for babel_row in babel_baza_dict.values():
-    #     # перебираэмо словник контекстів та звязаних id
-    #     result_value_str = ";".join([f"{key}:{value}" for key, value in babel_row.items()])
-    #     for contentid in babel_row.values():
-    #         # print(str(contentid) + " - " + result_str)
-    #         with connect_database.cursor() as cursor_bab:
-    #             sql_babel = "INSERT INTO `modx_site_tmplvar_contentvalues` (tmplvarid, contentid, value) VALUES (%s, %s, %s) \
-    #                          ON DUPLICATE KEY UPDATE value = VALUES (value)"
-    #             val = (1, contentid, result_value_str)
-    #             cursor_bab.execute(sql_babel, val)
-    #         connect_database.commit()
+    for babel_row in babel_baza_dict.values():
+        # перебираэмо словник контекстів та звязаних id
+        result_value_str = ";".join([f"{key}:{value}" for key, value in babel_row.items()])
+        for contentid in babel_row.values():
+            # print(str(contentid) + " - " + result_str)
+            with connect_database.cursor() as cursor_bab:
+                sql_babel = "INSERT INTO `modx_site_tmplvar_contentvalues` (tmplvarid, contentid, value) VALUES (%s, %s, %s) \
+                             ON DUPLICATE KEY UPDATE value = VALUES (value)"
+                val = (1, contentid, result_value_str)
+                cursor_bab.execute(sql_babel, val)
+            connect_database.commit()
 
 # except Exception as ex:
 #     print("Connection refused...")
