@@ -62,7 +62,7 @@ with open(r'Clon_MultiLang_SQL_Games\thedoghouse_org\configs\config_sql_Deepl.js
 my_site = "https://the-dog-house.org/"
 site_name = "Dog House slot game"
 
-csv_url_file = r"SQL_clon_modx_resourse\csv\the-dog-house_org.csv"  # !!!!!! СТВОРИ ВРУЧНУ ФАЙЛ
+csv_url_file = r"Clon_MultiLang_SQL_Games\csv\the-dog-house_org.csv"  # !!!!!! СТВОРИ ВРУЧНУ ФАЙЛ
 
 """
 #############################################
@@ -383,8 +383,9 @@ with connect_database.cursor() as my_cursor:
                                         row_json[key_baza] = row_json[key_baza].replace("<keep>", "").replace("</keep>", "")
                                         # видаляэмо - \n, \t, "
                                         row_json[key_baza] = my_clean_ekran_string(row_json[key_baza])
-                                        if key == 'b1_comments_json' or key == 'faq_block_json':
-                                            row_json[key_baza] = row_json[key_baza].replace('"', '')
+                                        # if key == 'b1_comments_json' or key == 'faq_block_json' or key == 'image_galer_json':
+                                        #     row_json[key_baza] = row_json[key_baza].replace('"', '')
+                                        row_json[key_baza] = row_json[key_baza].replace('"', '')
                                         
                                         # ###############################################################################################
                                         # Перелінковка Змінюємо посилання в тексті використовуючи функцію replace_link та регулярний вираз
