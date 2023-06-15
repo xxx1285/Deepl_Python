@@ -1,6 +1,7 @@
 /images/*/*
 /images_unik/*
 /all_images/*
+/__pycache__/*
 *.webp
 *.jpg
 *.csv
