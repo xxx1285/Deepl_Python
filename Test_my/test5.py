@@ -1,18 +1,21 @@
-import pandas as pd
- 
-# Create lists for the data
-# Each list will become a pd.Series
-pages = ['/python', '/pandas', '/seo', '/excel']
-clicks = [400, 300, 200, 100]
- 
-# Store lists into a dictionary
-dictionary = {
-    'pages':pages,
-    'clicks':clicks
-}
- 
-# Create the DataFrame
-df = pd.DataFrame(dictionary)
+import httpx
+from PIL import Image
+import pytesseract
 
-print(df)
-print(df())
+
+
+
+
+
+
+
+
+
+# Укажите полный путь к исполняемому файлу tesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+im = r"Test_my\lc_ep1.png"
+# Используем Tesseract для распознавания текста
+text = pytesseract.image_to_string(im)
+print(text)
+print(text)

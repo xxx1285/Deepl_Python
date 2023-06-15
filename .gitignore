@@ -2,6 +2,7 @@
 /images_unik/*
 /all_images/*
 /__pycache__/*
+__pycache__
 *.webp
 *.jpg
 *.csv
@@ -13,3 +14,6 @@ config.py
 /temp
 *.txt
 /*SEO*
+test*
+del_*
+/cookies/*
