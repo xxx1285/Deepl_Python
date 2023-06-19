@@ -1,7 +1,7 @@
 /images/*/*
 /images_unik/*
 /all_images/*
-/baza_backlinks/*
+/bazaBacklinks/*
 /__pycache__/*
 __pycache__
 *.webp

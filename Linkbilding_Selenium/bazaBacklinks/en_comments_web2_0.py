@@ -106,7 +106,7 @@ websites = {
         {"a8": """a8 = driver.find_element(By.XPATH, '//*[@id="url"]').send_keys(my_site_backlink)"""},
         {"a9": """a9 = driver.find_element(By.XPATH, '//*[@id="wp-comment-cookies-consent"]').click()"""},
         {"a10": """a10 = driver.find_element(By.XPATH, '//*[@id="submit"]').click()"""},
-        ],
+    ],
 
     
 }

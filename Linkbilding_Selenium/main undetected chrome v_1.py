@@ -147,7 +147,7 @@ def execute_instructions(driver, url, instructions, **email_json_info):
         print(f"OK for - {url}")
         print(my_new_comment)
         
-        # Повторно заходим на страницу - таким образом обновляя ее
+        # Повторно заходим на страницу - таким образом обновляя ее 33
         driver.get(url)
         # driver.refresh()
         wait_for_page_load(driver, check_frequency=1, timeout=10)
