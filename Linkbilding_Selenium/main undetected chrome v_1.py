@@ -18,18 +18,22 @@ from selenium.common.exceptions import InvalidCookieDomainException, UnableToSet
 # Multiprotcessing
 from multiprocessing import Pool
 # Links: Завантаження інструкцій
-from baza_links.en_comments_web2_0 import websites
+from baza_backlinks.en_comments_web2_0 import websites
 # Function: Gmail
-from gmail_login import login_to_gmail
-from gmail_autorization import gmail_autoriz_fun
+from module_gmail.gmail_login import login_to_gmail
+from module_gmail.gmail_autorization import gmail_autoriz_fun
 # Function: Captcha
-from captcha_img import fun_my_captcha_image
+from module_captcha.captcha_img import fun_my_captcha_image
+from module_captcha.captcha_calculate_mathematic import fun_my_captcha_calculate_mathematic
+from module_captcha.wait_for_cloudflare_load import wait_for_cloudflare_to_disappear
 # Function: Формуэмо Частотну фразу Тайтл в Боді
 from most_frequent_phrase import most_frequent_phrase_in_body
+# Function: Функція очікування загрузки сайта 
+from def_wait_for_page_load import wait_for_page_load
 
 
 # База шаблонів коментарів
-from baza_template_comments.templ_comments_en import comments_prompt
+from comments_teplates.templ_comments_en import comments_prompt
 
 
 # Нинішній розділ
@@ -98,7 +102,9 @@ def execute_instructions(driver, url, instructions, **email_json_info):
 
     # Перехід до веб-сайту
     driver.get(url)
-    time.sleep(2)
+    wait_for_cloudflare_to_disappear(driver)
+    print("5 sek")
+    wait_for_page_load(driver, check_frequency=1, timeout=10)
 
     # Прокручуємо сторінку вниз або не більше 2 секунд
     current_scroll_position, new_height= 0, 1
@@ -141,16 +147,16 @@ def execute_instructions(driver, url, instructions, **email_json_info):
         print(f"OK for - {url}")
         print(my_new_comment)
         
-        # Обновляем страницу и ждем ее загрузки
-        time.sleep(2)
-        driver.refresh()
-        time.sleep(2)
+        # Повторно заходим на страницу - таким образом обновляя ее
+        driver.get(url)
+        # driver.refresh()
+        wait_for_page_load(driver, check_frequency=1, timeout=10)
 
         # Перевіряємо наявність мого URL сайту на сторінці
         
         if clean_site_url in driver.page_source:
             # Додаємо URL до файлу, якщо текст знайдено
-            with open(f'{current_folder}\\Final_result_links\\{clean_site_url}_{formatted_date}.txt', 'a') as file:
+            with open(f'{current_folder}\\result_links_txt\\{clean_site_url}_{formatted_date}.txt', 'a') as file:
                 file.write(f"{url}\n")
             break  # Если "author" найден, прерываем цикл
         else:

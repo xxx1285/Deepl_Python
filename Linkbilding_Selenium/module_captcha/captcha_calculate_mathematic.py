@@ -7,10 +7,10 @@ from selenium.webdriver.common.by import By
 import re
 
 
-def captcha_calculate_mathematic_XPATH(driver, xpath):
+def fun_my_captcha_calculate_mathematic(driver, captcha_xpath):
 
     # Отримуємо текст з веб-сторінки
-    element = driver.find_element(By.XPATH, xpath)
+    element = driver.find_element(By.XPATH, captcha_xpath)
     text = element.text
 
     # Видаляємо все символи, що не відносяться до чисел і "(,),=,+,-,*,/"

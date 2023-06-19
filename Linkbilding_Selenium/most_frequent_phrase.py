@@ -1,3 +1,8 @@
+"""
+    Отримуємо самий частотний вираз біграмми ta триграмми тайтла та тексту  
+"""
+
+
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.util import ngrams

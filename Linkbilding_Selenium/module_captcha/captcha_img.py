@@ -8,13 +8,13 @@ from PIL import Image
 import pytesseract
 from io import BytesIO
 
-def process_image(driver, element_id):
+def fun_my_captcha_image(driver, element_XPATH):
     # Вкажіть повний шлях до виконуваного файлу tesseract
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     # Знайдіть елемент зображення за його ID
     wait = WebDriverWait(driver, 10) # чекаємо до 10 секунд
-    img = wait.until(EC.presence_of_element_located((By.ID, element_id))) # очікуємо, поки елемент не з'явиться
+    img = wait.until(EC.presence_of_element_located((By.XPATH, element_XPATH))) # очікуємо, поки елемент не з'явиться
 
     # Отримайте абсолютний URL зображення
     img_url = img.get_attribute('src')
