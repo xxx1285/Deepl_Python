@@ -1,29 +1,28 @@
-"""
-    Функция принимает строку, удаляет все нерелевантные символы, 
-    вычисляет математическое выражение и возвращает результат.
-"""
+from PIL import Image, ImageSequence
+import numpy as np
+import cv2
+import pytesseract
 
-from selenium.webdriver.common.by import By
-import re
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
+pil_image = Image.open(r'D:\DEL\index(1).gif')
 
-def captcha_calculate_mathematic_XPATH(driver, xpath):
+frames = [f.copy() for f in ImageSequence.Iterator(pil_image)]
 
-    # Отримуємо текст з веб-сторінки
-    element = driver.find_element(By.XPATH, xpath)
-    text = element.text
+frames = [np.array(f.convert('L')) for f in frames]
 
-    # Видаляємо все символи, що не відносяться до чисел і "(,),=,+,-,*,/"
-    clean_text = re.sub("[^0-9\(\)\+\-\*/]", "", text)
+# Стекаем все кадры вместе, создавая трехмерный массив
+stacked_frames = np.stack(frames, axis=-1)
 
-    # Перевіряємо, чи не відсутній текст після очищення
-    if not clean_text:
-        raise ValueError('Немає тексту для обчислення після очищення')
+# Выбираем медианное значение для каждого пикселя во всех кадрах
+median_frame = np.median(stacked_frames, axis=-1)
 
-    # Здійснюємо математичну операцію
-    try:
-        result = eval(clean_text)
-    except SyntaxError:
-        raise SyntaxError('Помилка у тексті для обчислення. Перевірте його.')
+# Конвертируем обратно в PIL.Image для использования pytesseract
+median_frame = Image.fromarray(median_frame.astype(np.uint8))
 
-    return result
+custom_config = r'--oem 3 --psm 6'
+text_captcha = pytesseract.image_to_string(median_frame, config=custom_config)
+
+text_captcha = text_captcha.replace('\n', '')
+
+print(text_captcha)

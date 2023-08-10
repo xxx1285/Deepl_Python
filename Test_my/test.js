@@ -1,415 +1,382 @@
-class MydsLazyLoadScripts {
-  constructor() {
-    (this.v = "1.2.4"),
-      (this.triggerEvents = [
-        "keydown",
-        "mousedown",
-        "mousemove",
-        "touchmove",
-        "touchstart",
-        "touchend",
-        "wheel",
-      ]),
-      (this.userEventHandler = this._triggerListener.bind(this)),
-      (this.touchStartHandler = this._onTouchStart.bind(this)),
-      (this.touchMoveHandler = this._onTouchMove.bind(this)),
-      (this.touchEndHandler = this._onTouchEnd.bind(this)),
-      (this.clickHandler = this._onClick.bind(this)),
-      (this.interceptedClicks = []),
-      window.addEventListener("pageshow", (e) => {
-        this.persisted = e.persisted;
-      }),
-      window.addEventListener("DOMContentLoaded", () => {
-        this._preconnect3rdParties();
-      }),
-      (this.delayedScripts = { normal: [], async: [], defer: [] }),
-      (this.trash = []),
-      (this.allJQueries = []);
-  }
-  _addUserInteractionListener(e) {
-    document.hidden
-      ? e._triggerListener()
-      : (this.triggerEvents.forEach((t) =>
-          window.addEventListener(t, e.userEventHandler, { passive: !0 })
-        ),
-        window.addEventListener("touchstart", e.touchStartHandler, {
-          passive: !0,
-        }),
-        window.addEventListener("mousedown", e.touchStartHandler),
-        document.addEventListener("visibilitychange", e.userEventHandler));
-  }
-  _removeUserInteractionListener() {
-    this.triggerEvents.forEach((e) =>
-      window.removeEventListener(e, this.userEventHandler, { passive: !0 })
-    ),
-      document.removeEventListener("visibilitychange", this.userEventHandler);
-  }
-  _onTouchStart(e) {
-    "HTML" !== e.target.tagName &&
-      (window.addEventListener("touchend", this.touchEndHandler),
-      window.addEventListener("mouseup", this.touchEndHandler),
-      window.addEventListener("touchmove", this.touchMoveHandler, {
-        passive: !0,
-      }),
-      window.addEventListener("mousemove", this.touchMoveHandler),
-      e.target.addEventListener("click", this.clickHandler),
-      this._renameDOMAttribute(e.target, "onclick", "myds-onclick"),
-      this._pendingClickStarted());
-  }
-  _onTouchMove(e) {
-    window.removeEventListener("touchend", this.touchEndHandler),
-      window.removeEventListener("mouseup", this.touchEndHandler),
-      window.removeEventListener("touchmove", this.touchMoveHandler, {
-        passive: !0,
-      }),
-      window.removeEventListener("mousemove", this.touchMoveHandler),
-      e.target.removeEventListener("click", this.clickHandler),
-      this._renameDOMAttribute(e.target, "myds-onclick", "onclick"),
-      this._pendingClickFinished();
-  }
-  _onTouchEnd(e) {
-    window.removeEventListener("touchend", this.touchEndHandler),
-      window.removeEventListener("mouseup", this.touchEndHandler),
-      window.removeEventListener("touchmove", this.touchMoveHandler, {
-        passive: !0,
-      }),
-      window.removeEventListener("mousemove", this.touchMoveHandler);
-  }
-  _onClick(e) {
-    e.target.removeEventListener("click", this.clickHandler),
-      this._renameDOMAttribute(e.target, "myds-onclick", "onclick"),
-      this.interceptedClicks.push(e),
-      e.preventDefault(),
-      e.stopPropagation(),
-      e.stopImmediatePropagation(),
-      this._pendingClickFinished();
-  }
-  _replayClicks() {
-    window.removeEventListener("touchstart", this.touchStartHandler, {
-      passive: !0,
-    }),
-      window.removeEventListener("mousedown", this.touchStartHandler),
-      this.interceptedClicks.forEach((e) => {
-        e.target.dispatchEvent(
-          new MouseEvent("click", { view: e.view, bubbles: !0, cancelable: !0 })
+!(function (e) {
+  "use strict";
+  var t = e,
+    i = t.document,
+    o = "cbinstance";
+  var n = {
+      get: function (e) {
+        return (
+          decodeURIComponent(
+            i.cookie.replace(
+              new RegExp(
+                "(?:(?:^|.*;)\\s*" +
+                  encodeURIComponent(e).replace(/[\-\.\+\*]/g, "\\$&") +
+                  "\\s*\\=\\s*([^;]*).*$)|^.*$"
+              ),
+              "$1"
+            )
+          ) || null
         );
-      });
-  }
-  _waitForPendingClicks() {
-    return new Promise((e) => {
-      this._isClickPending ? (this._pendingClickFinished = e) : e();
-    });
-  }
-  _pendingClickStarted() {
-    this._isClickPending = !0;
-  }
-  _pendingClickFinished() {
-    this._isClickPending = !1;
-  }
-  _renameDOMAttribute(e, t, i) {
-    e.hasAttribute &&
-      e.hasAttribute(t) &&
-      (event.target.setAttribute(i, event.target.getAttribute(t)),
-      event.target.removeAttribute(t));
-  }
-  _triggerListener() {
-    this._removeUserInteractionListener(this),
-      "loading" === document.readyState
-        ? document.addEventListener(
-            "DOMContentLoaded",
-            this._loadEverythingNow.bind(this)
-          )
-        : this._loadEverythingNow();
-  }
-  _preconnect3rdParties() {
-    let e = [];
-    document
-      .querySelectorAll("script[type=mydslazyloadscript]")
-      .forEach((t) => {
-        if (t.hasAttribute("src")) {
-          let i = new URL(t.src).origin;
-          i !== location.origin &&
-            e.push({
-              src: i,
-              crossOrigin:
-                t.crossOrigin || "module" === t.getAttribute("data-myds-type"),
-            });
-        }
-      }),
-      (e = [...new Map(e.map((e) => [JSON.stringify(e), e])).values()]),
-      this._batchInjectResourceHints(e, "preconnect");
-  }
-  async _loadEverythingNow() {
-    (this.lastBreath = Date.now()),
-      this._delayEventListeners(this),
-      this._delayJQueryReady(this),
-      this._handleDocumentWrite(),
-      this._registerAllDelayedScripts(),
-      this._preloadAllScripts(),
-      await this._loadScriptsFromList(this.delayedScripts.normal),
-      await this._loadScriptsFromList(this.delayedScripts.defer),
-      await this._loadScriptsFromList(this.delayedScripts.async);
-    try {
-      await this._triggerDOMContentLoaded(), await this._triggerWindowLoad();
-    } catch (e) {
-      console.error(e);
-    }
-    window.dispatchEvent(new Event("myds-allScriptsLoaded")),
-      this._waitForPendingClicks().then(() => {
-        this._replayClicks();
-      }),
-      this._emptyTrash();
-  }
-  _registerAllDelayedScripts() {
-    document
-      .querySelectorAll("script[type=mydslazyloadscript]")
-      .forEach((e) => {
-        e.hasAttribute("data-myds-src")
-          ? e.hasAttribute("async") && !1 !== e.async
-            ? this.delayedScripts.async.push(e)
-            : (e.hasAttribute("defer") && !1 !== e.defer) ||
-              "module" === e.getAttribute("data-myds-type")
-            ? this.delayedScripts.defer.push(e)
-            : this.delayedScripts.normal.push(e)
-          : this.delayedScripts.normal.push(e);
-      });
-  }
-  async _transformScript(e) {
-    return new Promise(
-      (await this._littleBreath(),
-      navigator.userAgent.indexOf("Firefox/") > 0 || "" === navigator.vendor
-        ? (t) => {
-            let i = document.createElement("script");
-            [...e.attributes].forEach((e) => {
-              let t = e.nodeName;
-              "type" !== t &&
-                ("data-myds-type" === t && (t = "type"),
-                "data-myds-src" === t && (t = "src"),
-                i.setAttribute(t, e.nodeValue));
-            }),
-              e.text && (i.text = e.text),
-              i.hasAttribute("src")
-                ? (i.addEventListener("load", t),
-                  i.addEventListener("error", t))
-                : ((i.text = e.text), t());
-            try {
-              e.parentNode.replaceChild(i, e);
-            } catch (e) {
-              t();
-            }
+      },
+      set: function (e, t, o, n, s, r) {
+        if (!e || /^(?:expires|max\-age|path|domain|secure)$/i.test(e))
+          return !1;
+        var a = "";
+        if (o)
+          switch (o.constructor) {
+            case Number:
+              a =
+                o === 1 / 0
+                  ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT"
+                  : "; max-age=" + o;
+              break;
+            case String:
+              a = "; expires=" + o;
+              break;
+            case Date:
+              a = "; expires=" + o.toUTCString();
           }
-        : async (t) => {
-            function i() {
-              e.setAttribute("data-myds-status", "failed"), t();
-            }
-            try {
-              let n = e.getAttribute("data-myds-type"),
-                r = e.getAttribute("data-myds-src");
-              e.text,
-                n
-                  ? ((e.type = n), e.removeAttribute("data-myds-type"))
-                  : e.removeAttribute("type"),
-                e.addEventListener("load", function () {
-                  e.setAttribute("data-myds-status", "executed"), t();
-                }),
-                e.addEventListener("error", i),
-                r
-                  ? (e.removeAttribute("data-myds-src"), (e.src = r))
-                  : (e.src =
-                      "data:text/javascript;base64," +
-                      window.btoa(unescape(encodeURIComponent(e.text))));
-            } catch (e) {
-              i();
-            }
-          })
-    );
-  }
-  async _loadScriptsFromList(e) {
-    let t = e.shift();
-    return t && t.isConnected
-      ? (await this._transformScript(t), this._loadScriptsFromList(e))
-      : Promise.resolve();
-  }
-  _preloadAllScripts() {
-    this._batchInjectResourceHints(
-      [
-        ...this.delayedScripts.normal,
-        ...this.delayedScripts.defer,
-        ...this.delayedScripts.async,
-      ],
-      "preload"
-    );
-  }
-  _batchInjectResourceHints(e, t) {
-    var i = document.createDocumentFragment();
-    e.forEach((e) => {
-      let n = (e.getAttribute && e.getAttribute("data-myds-src")) || e.src;
-      if (n) {
-        let r = document.createElement("link");
-        (r.href = n),
-          (r.rel = t),
-          "preconnect" !== t && (r.as = "script"),
-          e.getAttribute &&
-            "module" === e.getAttribute("data-myds-type") &&
-            (r.crossOrigin = !0),
-          e.crossOrigin && (r.crossOrigin = e.crossOrigin),
-          e.integrity && (r.integrity = e.integrity),
-          i.appendChild(r),
-          this.trash.push(r);
-      }
-    }),
-      document.head.appendChild(i);
-  }
-  _delayEventListeners(e) {
-    function t(e, t) {
-      !(function (e) {
-        function t(t) {
-          return n[e].eventsToRewrite.indexOf(t) >= 0 ? "myds-" + t : t;
+        return (
+          (i.cookie =
+            encodeURIComponent(e) +
+            "=" +
+            encodeURIComponent(t) +
+            a +
+            (s ? "; domain=" + s : "") +
+            (n ? "; path=" + n : "") +
+            (r ? "; secure" : "")),
+          !0
+        );
+      },
+      has: function (e) {
+        return new RegExp(
+          "(?:^|;\\s*)" +
+            encodeURIComponent(e).replace(/[\-\.\+\*]/g, "\\$&") +
+            "\\s*\\="
+        ).test(i.cookie);
+      },
+      remove: function (e, t, o) {
+        return (
+          !(!e || !this.has(e)) &&
+          ((i.cookie =
+            encodeURIComponent(e) +
+            "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" +
+            (o ? "; domain=" + o : "") +
+            (t ? "; path=" + t : "")),
+          !0)
+        );
+      },
+    },
+    s = {
+      merge: function () {
+        var e,
+          t = {},
+          i = 0,
+          o = arguments.length;
+        if (0 === o) return t;
+        for (; i < o; i++)
+          for (e in arguments[i])
+            Object.prototype.hasOwnProperty.call(arguments[i], e) &&
+              (t[e] = arguments[i][e]);
+        return t;
+      },
+      str2bool: function (e) {
+        switch ((e = "" + e).toLowerCase()) {
+          case "false":
+          case "no":
+          case "0":
+          case "":
+            return !1;
+          default:
+            return !0;
         }
-        !n[e] &&
-          ((n[e] = {
-            originalFunctions: {
-              add: e.addEventListener,
-              remove: e.removeEventListener,
-            },
-            eventsToRewrite: [],
-          }),
-          (e.addEventListener = function () {
-            (arguments[0] = t(arguments[0])),
-              n[e].originalFunctions.add.apply(e, arguments);
-          }),
-          (e.removeEventListener = function () {
-            (arguments[0] = t(arguments[0])),
-              n[e].originalFunctions.remove.apply(e, arguments);
-          }));
-      })(e),
-        n[e].eventsToRewrite.push(t);
-    }
-    function i(e, t) {
-      let i = e[t];
-      Object.defineProperty(e, t, {
-        get: () => i || function () {},
-        set(n) {
-          e["myds" + t] = i = n;
-        },
-      });
-    }
-    let n = {};
-    t(document, "DOMContentLoaded"),
-      t(window, "DOMContentLoaded"),
-      t(window, "load"),
-      t(window, "pageshow"),
-      t(document, "readystatechange"),
-      i(document, "onreadystatechange"),
-      i(window, "onload"),
-      i(window, "onpageshow");
-  }
-  _delayJQueryReady(e) {
-    function t(t) {
-      if (t && t.fn && !e.allJQueries.includes(t)) {
-        t.fn.ready = t.fn.init.prototype.ready = function (i) {
-          return (
-            e.domReadyFired
-              ? i.bind(document)(t)
-              : document.addEventListener("myds-DOMContentLoaded", () =>
-                  i.bind(document)(t)
-                ),
-            t([])
-          );
-        };
-        let i = t.fn.on;
-        (t.fn.on = t.fn.init.prototype.on =
-          function () {
-            if (this[0] === window) {
-              function e(e) {
-                return e
-                  .split(" ")
-                  .map((e) =>
-                    "load" === e || 0 === e.indexOf("load.")
-                      ? "myds-jquery-load"
-                      : e
-                  )
-                  .join(" ");
-              }
-              "string" == typeof arguments[0] || arguments[0] instanceof String
-                ? (arguments[0] = e(arguments[0]))
-                : "object" == typeof arguments[0] &&
-                  Object.keys(arguments[0]).forEach((t) => {
-                    let i = arguments[0][t];
-                    delete arguments[0][t], (arguments[0][e(t)] = i);
-                  });
+      },
+      fade_in: function (e) {
+        e.style.opacity < 1 &&
+          ((e.style.opacity = (parseFloat(e.style.opacity) + 0.05).toFixed(2)),
+          t.setTimeout(function () {
+            s.fade_in(e);
+          }, 50));
+      },
+      get_data_attribs: function (e) {
+        var t = {};
+        if (Object.prototype.hasOwnProperty.call(e, "dataset")) t = e.dataset;
+        else {
+          var i,
+            o = e.attributes;
+          for (i in o)
+            if (Object.prototype.hasOwnProperty.call(o, i)) {
+              var n = o[i];
+              if (/^data-/.test(n.name))
+                t[s.camelize(n.name.substr(5))] = n.value;
             }
-            return i.apply(this, arguments), this;
-          }),
-          e.allJQueries.push(t);
+        }
+        return t;
+      },
+      normalize_keys: function (e) {
+        var t = {};
+        for (var i in e)
+          if (Object.prototype.hasOwnProperty.call(e, i)) {
+            var o = s.camelize(i);
+            t[o] = e[o] ? e[o] : e[i];
+          }
+        return t;
+      },
+      camelize: function (e) {
+        for (var t = "-", i = e.indexOf(t); -1 != i; ) {
+          var o = i === e.length - 1,
+            n = o ? "" : e[i + 1],
+            s = n.toUpperCase(),
+            r = o ? t : t + n;
+          i = (e = e.replace(r, s)).indexOf(t);
+        }
+        return e;
+      },
+      find_script_by_id: function (e) {
+        for (
+          var t = i.getElementsByTagName("script"), o = 0, n = t.length;
+          o < n;
+          o++
+        )
+          if (e === t[o].id) return t[o];
+        return null;
+      },
+    },
+    r = s.find_script_by_id("cookieinfo"),
+    a = (e.cookieinfo = function (e) {
+      this.init(e);
+    });
+  (a.prototype = {
+    cookiejar: n,
+    init: function (t) {
+      (this.inserted = !1), (this.closed = !1), (this.test_mode = !1);
+      if (
+        ((this.default_options = {
+          cookie: "we-love-cookies",
+          closeText: "&#10006;",
+          cookiePath: "/",
+          debug: !1,
+          expires: 1 / 0,
+          zindex: 1e20,
+          mask: !1,
+          maskOpacity: 0.5,
+          maskBackground: "#999",
+          height: "auto",
+          minHeight: "21px",
+          bg: "#eee",
+          fg: "#333",
+          link: "#31A8F0",
+          divlink: "#000",
+          divlinkbg: "#F1D600",
+          position: "bottom",
+          message:
+            "We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.",
+          linkmsg: "",
+          scriptmsg: "cookie script",
+          moreinfo: "/",
+          scriptinfo: "/",
+          tracking:
+            "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+          effect: null,
+          fontSize: "14px",
+          fontFamily: "verdana, arial, sans-serif",
+          instance: o,
+          textAlign: "center",
+          acceptOnScroll: !1,
+        }),
+        (this.options = this.default_options),
+        (this.script_el = r),
+        this.script_el)
+      ) {
+        var i = s.get_data_attribs(this.script_el);
+        this.options = s.merge(this.options, i);
       }
-      i = t;
-    }
-    let i;
-    t(window.jQuery),
-      Object.defineProperty(window, "jQuery", {
-        get: () => i,
-        set(e) {
-          t(e);
-        },
-      });
-  }
-  async _triggerDOMContentLoaded() {
-    (this.domReadyFired = !0),
-      await this._littleBreath(),
-      document.dispatchEvent(new Event("myds-DOMContentLoaded")),
-      await this._littleBreath(),
-      window.dispatchEvent(new Event("myds-DOMContentLoaded")),
-      await this._littleBreath(),
-      document.dispatchEvent(new Event("myds-readystatechange")),
-      await this._littleBreath(),
-      document.mydsonreadystatechange && document.mydsonreadystatechange();
-  }
-  async _triggerWindowLoad() {
-    await this._littleBreath(),
-      window.dispatchEvent(new Event("myds-load")),
-      await this._littleBreath(),
-      window.mydsonload && window.mydsonload(),
-      await this._littleBreath(),
-      this.allJQueries.forEach((e) => e(window).trigger("myds-jquery-load")),
-      await this._littleBreath();
-    let e = new Event("myds-pageshow");
-    (e.persisted = this.persisted),
-      window.dispatchEvent(e),
-      await this._littleBreath(),
-      window.mydsonpageshow &&
-        window.mydsonpageshow({ persisted: this.persisted });
-  }
-  _handleDocumentWrite() {
-    let e = new Map();
-    document.write = document.writeln = function (t) {
-      let i = document.currentScript;
-      i || console.error("WPMyds unable to document.write this: " + t);
-      let n = document.createRange(),
-        r = i.parentElement,
-        s = e.get(i);
-      void 0 === s && ((s = i.nextSibling), e.set(i, s));
-      let a = document.createDocumentFragment();
-      n.setStart(a, 0),
-        a.appendChild(n.createContextualFragment(t)),
-        r.insertBefore(a, s);
-    };
-  }
-  async _littleBreath() {
-    Date.now() - this.lastBreath > 45 &&
-      (await this._requestAnimFrame(), (this.lastBreath = Date.now()));
-  }
-  async _requestAnimFrame() {
-    return document.hidden
-      ? new Promise((e) => setTimeout(e))
-      : new Promise((e) => requestAnimationFrame(e));
-  }
-  _emptyTrash() {
-    this.trash.forEach((e) => e.remove());
-  }
-  static run() {
-    let e = new MydsLazyLoadScripts();
-    e._addUserInteractionListener(e);
-  }
-}
-MydsLazyLoadScripts.run();
+      t &&
+        ((t = s.normalize_keys(t)), (this.options = s.merge(this.options, t))),
+        (o = this.options.instance),
+        (this.options.zindex = parseInt(this.options.zindex, 10)),
+        (this.options.mask = s.str2bool(this.options.mask)),
+        "string" == typeof this.options.expires &&
+          "function" == typeof e[this.options.expires] &&
+          (this.options.expires = e[this.options.expires]),
+        "function" == typeof this.options.expires &&
+          (this.options.expires = this.options.expires()),
+        this.script_el && this.run();
+    },
+    log: function () {
+      "undefined" != typeof console && console.log.apply(console, arguments);
+    },
+    run: function () {
+      if (!this.agreed()) {
+        var e = this;
+        !(function (e, t) {
+          var i = !1,
+            o = !0,
+            n = e.document,
+            s = n.documentElement,
+            r = n.addEventListener ? "addEventListener" : "attachEvent",
+            a = n.addEventListener ? "removeEventListener" : "detachEvent",
+            c = n.addEventListener ? "" : "on",
+            l = function (o) {
+              ("readystatechange" == o.type && "complete" != n.readyState) ||
+                (("load" == o.type ? e : n)[a](c + o.type, l, !1),
+                !i && (i = !0) && t.call(e, o.type || o));
+            },
+            p = function () {
+              try {
+                s.doScroll("left");
+              } catch (e) {
+                return void setTimeout(p, 50);
+              }
+              l("poll");
+            };
+          if ("complete" == n.readyState) t.call(e, "lazy");
+          else {
+            if (n.createEventObject && s.doScroll) {
+              try {
+                o = !e.frameElement;
+              } catch (e) {}
+              o && p();
+            }
+            n[r](c + "DOMContentLoaded", l, !1),
+              n[r](c + "readystatechange", l, !1),
+              e[r](c + "load", l, !1);
+          }
+        })(t, function () {
+          e.insert();
+        });
+      }
+    },
+    build_viewport_mask: function () {
+      var e = null;
+      if (!0 === this.options.mask) {
+        var t = this.options.maskOpacity,
+          o =
+            '<div id="cookieinfo-mask" style="position:fixed;top:0;left:0;width:100%;height:100%;background:' +
+            this.options.maskBackground +
+            ";zoom:1;filter:alpha(opacity=" +
+            100 * t +
+            ");opacity:" +
+            t +
+            ";z-index:" +
+            this.options.zindex +
+            ';"></div>',
+          n = i.createElement("div");
+        (n.innerHTML = o), (e = n.firstChild);
+      }
+      return e;
+    },
+    agree: function () {
+      return (
+        this.cookiejar.set(
+          this.options.cookie,
+          1,
+          this.options.expires,
+          this.options.cookiePath
+        ),
+        !0
+      );
+    },
+    agreed: function () {
+      return this.cookiejar.has(this.options.cookie);
+    },
+    close: function () {
+      return (
+        this.inserted &&
+          (this.closed ||
+            (this.element && this.element.parentNode.removeChild(this.element),
+            this.element_mask &&
+              this.element_mask.parentNode.removeChild(this.element_mask),
+            (this.closed = !0))),
+        this.closed
+      );
+    },
+    agree_and_close: function () {
+      return this.agree(), this.close();
+    },
+    cleanup: function () {
+      return this.close(), this.unload();
+    },
+    unload: function () {
+      return (
+        this.script_el && this.script_el.parentNode.removeChild(this.script_el),
+        (e[o] = void 0),
+        !0
+      );
+    },
+    insert: function () {
+      this.element_mask = this.build_viewport_mask();
+      var e = this.options.zindex;
+      this.element_mask && (e += 1);
+      var t = i.createElement("div");
+      (t.className = "cookieinfo"),
+        (t.style.position = "fixed"),
+        (t.style.left = 0),
+        (t.style.right = 0),
+        (t.style.height = this.options.height),
+        (t.style.minHeight = this.options.minHeight),
+        (t.style.zIndex = e),
+        (t.style.background = this.options.bg),
+        (t.style.color = this.options.fg),
+        (t.style.lineHeight = t.style.minHeight),
+        (t.style.padding = "8px 18px"),
+        (t.style.fontFamily = this.options.fontFamily),
+        (t.style.fontSize = this.options.fontSize),
+        (t.style.textAlign = this.options.textAlign),
+        "top" === this.options.position
+          ? (t.style.top = 0)
+          : (t.style.bottom = 0),
+        (t.innerHTML =
+          '<div class="cookieinfo-close" style="float:right;display:block;padding:5px 8px 5px 8px;min-width:100px;margin-left:5px;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-right-radius:5px;border-bottom-left-radius:5px;">' +
+          this.options.closeText +
+          '</div><span style="display:block;padding:5px 0 5px 0;">' +
+          this.options.message +
+          " <a>" +
+          this.options.linkmsg +
+          "</a><img> <a>" +
+          this.options.scriptmsg +
+          "</a></span>"),
+        (this.element = t);
+      var o = t.getElementsByTagName("a")[0];
+      (o.href = this.options.moreinfo),
+        (o.style.textDecoration = "none"),
+        (o.style.color = this.options.link);
+      var n = t.getElementsByTagName("a")[1];
+      (n.href = this.options.scriptinfo),
+        (n.style.textDecoration = "none"),
+        (n.style.display = "none"),
+        (n.style.color = this.options.link);
+      var r = t.getElementsByTagName("div")[0];
+      (r.style.cursor = "pointer"),
+        (r.style.color = this.options.divlink),
+        (r.style.background = this.options.divlinkbg),
+        (r.style.textAlign = "center");
+      var a = t.getElementsByTagName("img")[0];
+      function c(e, t, i) {
+        var o = e.addEventListener ? "addEventListener" : "attachEvent",
+          n = e.addEventListener ? "" : "on";
+        e[o](n + t, i, !1);
+      }
+      (a.src = this.options.tracking), (a.style.display = "none");
+      var l = this;
+      c(r, "click", function () {
+        l.agree_and_close();
+      }),
+        this.element_mask &&
+          (c(this.element_mask, "click", function () {
+            l.agree_and_close();
+          }),
+          i.body.appendChild(this.element_mask)),
+        this.options.acceptOnScroll &&
+          c(window, "scroll", function () {
+            l.agree_and_close();
+          }),
+        i.body.appendChild(this.element),
+        (this.inserted = !0),
+        "fade" === this.options.effect
+          ? ((this.element.style.opacity = 0), s.fade_in(this.element))
+          : (this.element.style.opacity = 1);
+    },
+  }),
+    r && (e[o] || (e[o] = new a()));
+})(window);

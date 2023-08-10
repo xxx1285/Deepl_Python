@@ -10,39 +10,6 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/5
 
 folder_path = r"Links_Baza_all_Domains\EDU_poisk_posts_for_coments\edu_domeins"
 
-possible_subdirectories = ["cate7456/", "cate7456/", "category/blogs/", "blog/", "blogs/", "blogpost/", "forum/", "forums/", 
-                           "category/articles/", "articles/", "subforum/", "topic/", "topics/", "discussion/", "post/", "posts/", 
-                           "thread/", "threads/", "comment/", "comments/", "messageboards/", "bulletinboard/", "bulletinboards/"
-                        ]
-translation_dict = {
-    'ar': 'تعليق', # арабский
-    'au': 'comment', # английский (Австралия)
-    'bd': 'মন্তব্য', # бенгальский
-    'br': 'comentário', # португальский (Бразилия)
-    'cn': '评论', # китайский (Китай)
-    'co': 'comentario', # испанский (Колумбия)
-    'ec': 'comentario', # испанский (Эквадор)
-    'ee': 'kommentaar', # эстонский
-    'gr': 'σχόλιο', # греческий
-    'hk': '評論', # китайский (Гонконг)
-    'in': 'कमेंट', # хинди (Индия)
-    'it': 'commento', # итальянский
-    'kz': 'пікір', # казахский
-    'mx': 'comentario', # испанский (Мексика)
-    'my': 'komen', # малайский
-    'ng': 'comment', # английский (Нигерия)
-    'np': 'प्रतिक्रिया', # непальский
-    'pe': 'comentario', # испанский (Перу)
-    'ph': 'komento', # филиппинский
-    'pk': 'تبصرہ', # урду (Пакистан)
-    'pl': 'komentarz', # польский
-    'rs': 'коментар', # сербский
-    'sg': 'comment', # английский (Сингапур)
-    'uy': 'comentario', # испанский (Уругвай)
-    'vn': 'bình luận', # вьетнамский
-    'jp': 'コメント' # японский
-    }
-
 # Встановіть максимальну кількість одночасних асинхронних завдань
 semaphore = asyncio.Semaphore(40)
 

@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 def wait_for_cloudflare_to_disappear(driver):
     try:
-        # Проверяем наличие элемента на странице
+        # Проверяем наличие элемента на странице 
         driver.find_element(By.XPATH, '//*[@id="footer-text"]/a[contains(text(), "Cloudflare")]')
         # Если элемент найден, ждем его исчезновения
         WebDriverWait(driver, 15).until(
