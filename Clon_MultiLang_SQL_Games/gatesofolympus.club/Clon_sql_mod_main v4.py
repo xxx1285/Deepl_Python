@@ -112,7 +112,7 @@ site_start = 1              # id тартової першої-головної 
 
 # TODO: Контексти та мови для перекладу
 # context_and_lang = ["uk"]
-context_and_lang = ["es","ru","tr","ro","pl","pt-br","fr","el","de","uk"]
+context_and_lang = ["es","ru","tr","nl","de","fr","it","pt-br","ro","el"]
 # context_and_lang = ["es","ru","tr","ro","pl","pt-br","fr","el","de","uk","it","bg","fi","et",
 #                     "lt","lv","da","nb","sv"]
 # context_and_lang = ["ru","es","pl","pt-br","fr","id","el","de","tr","hu","uk","it","ro","bg","fi","et",
