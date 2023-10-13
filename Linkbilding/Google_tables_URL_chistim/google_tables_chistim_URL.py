@@ -23,8 +23,3 @@ if __name__ == "__main__":
 
     urls = extract_urls_from_file(input_path)
     save_to_file(urls, output_path)
-
-dfgdfgdf
-dfgdf
-gdfgdf
-g
