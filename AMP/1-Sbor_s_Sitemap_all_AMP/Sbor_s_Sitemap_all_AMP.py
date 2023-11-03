@@ -49,7 +49,7 @@ def main():
         result = fetch_amp_urls(chunk)
         all_results.append(result)
     
-    with open(r'AMP\1-Sbor_s_Sitemap_all_AMP\output\amp_mapping.json', 'w') as file:
+    with open(r'AMP\1-Sbor_s_Sitemap_all_AMP\output\amp_mapping3.json', 'w') as file:
         json.dump(all_results, file, indent=4)
 
 if __name__ == "__main__":
