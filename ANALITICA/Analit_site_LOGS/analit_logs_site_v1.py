@@ -10,7 +10,7 @@ def parse_log_line(line):
     if match:
         return {
             'ip': match.group(1),
-            'date': datetime.strptime(match.group(2), '%d/%b/%Y:%H:%M:%S %z'),
+            'date': datetime.strptime(match.group(2), '%d/%b/%Y'),
             'method': match.group(3),
             'path': match.group(4),
             'status': int(match.group(5)),
