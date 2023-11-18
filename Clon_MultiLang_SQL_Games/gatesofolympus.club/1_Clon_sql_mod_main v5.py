@@ -23,6 +23,7 @@ def my_clean_ekran_string(string):
     return string
 
 # BABEL Функция для добавления данных в существующий JSON-файл
+# обновляем старые и добавляем новые данные
 def add_to_json(babel_file_path, new_data):
     try:
         with open(babel_file_path, 'r', encoding='utf-8') as file:

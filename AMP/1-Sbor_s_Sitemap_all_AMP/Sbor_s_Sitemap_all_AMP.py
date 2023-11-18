@@ -4,7 +4,8 @@ import json
 import datetime
 
 
-SITEMAP_URL = "https://gatesofolympus.club/my-sitemap.xml"
+SITEMAP_URL = "https://aviator--game.com/my-sitemap.xml"
+# SITEMAP_URL = "https://gatesofolympus.club/my-sitemap.xml"
 SITEMAP_URL_AMP = "https://gatesofolympus.club/xml-amp-sitemap.xml"
 
 api_endpoint = "https://acceleratedmobilepageurl.googleapis.com/v1/ampUrls:batchGet"
