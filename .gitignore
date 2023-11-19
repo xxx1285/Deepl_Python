@@ -8,6 +8,8 @@ __pycache__
 *.jpg
 *.csv
 *.zip
+*.mp3
+*.mp4
 *.sql
 *.json
 *.gz
