@@ -39,14 +39,25 @@ def VideoRecorder(filename, duration, fps=24.0, region=None, top_text=""):
                 font = cv2.FONT_HERSHEY_SIMPLEX
 
                 # Черная подложка для текста
-                cv2.putText(frame, top_text, (10, 50), font, 0.7, (0, 0, 0), 7, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (10, 50), font, 0.9, (0, 0, 0), 7, cv2.LINE_AA)
                 # Красный текст поверх подложки
-                cv2.putText(frame, top_text, (10, 50), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (10, 50), font, 0.9, (0, 0, 255), 2, cv2.LINE_AA)
+
+                # Черная подложка для текста
+                cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 255, 0), 7, cv2.LINE_AA)
+                # Красный текст поверх подложки
+                cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+
 
                 # Белая обводка для черного текста
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.7, (255, 255, 255), 4, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (255, 255, 255), 4, cv2.LINE_AA)
                 # Черный текст поверх белой обводки
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (0, 0, 0), 2, cv2.LINE_AA)
+
+                # Белая обводка для черного текста
+                # cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 150), font, 0.8, (255, 0, 0), 7, cv2.LINE_AA)
+                # Черный текст поверх белой обводки
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 145), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
 
 
 

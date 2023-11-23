@@ -4,7 +4,7 @@ import json
 import datetime
 
 
-SITEMAP_URL = "https://aviator--game.com/my-sitemap.xml"
+SITEMAP_URL = "https://gatesofolympus.club/my-sitemap.xml"
 # SITEMAP_URL = "https://gatesofolympus.club/my-sitemap.xml"
 SITEMAP_URL_AMP = "https://gatesofolympus.club/xml-amp-sitemap.xml"
 
@@ -78,24 +78,24 @@ def fetch_amp_urls(urls):
     data = {
         "urls": urls
     }
-    
+
     response = requests.post(api_endpoint, headers=headers, json=data)
-    
+
     return response.json()
 
 def main():
     urls = fetch_sitemap_urls()
     test_all_amp_and_googleAMP = fetch_sitemap_amp_urls()
-    
+
     # Разбиваем список URL на группы по 50, так как API принимает максимум 50 URL за раз
     chunks = [urls[i:i + 50] for i in range(0, len(urls), 50)]
-    
+
     all_results = []
-    
+
     for chunk in chunks:
         result = fetch_amp_urls(chunk)
         all_results.append(result)
-    
+
     with open(r'AMP\1-Sbor_s_Sitemap_all_AMP\output\AMP_map__' + current_date + '.json', 'w') as file:
         json.dump(all_results, file, indent=4)
 
