@@ -71,6 +71,8 @@ async def upload_video(youtube, video_file, title, text_game=""):
     tag_from_name = find_first_long_word(title)
     new_title = "SLOT 🎃 " + title + " DEMO - Strategy For Profit - Stake #stake #slots #staking #playing " + tag_from_name
     new_description = text_game[:350]
+    print(video_file)
+    print(new_title)
     body = {
         'snippet': {
             'title': new_title,
