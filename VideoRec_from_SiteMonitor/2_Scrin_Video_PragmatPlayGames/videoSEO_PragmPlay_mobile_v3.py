@@ -1,3 +1,5 @@
+# проверка Undetect браузер - https://whoer.net/ru
+
 import os
 import csv
 import time

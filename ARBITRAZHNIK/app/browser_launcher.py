@@ -20,7 +20,7 @@ class BrowserLauncher:
         self.chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.chrome_options.add_experimental_option('useAutomationExtension', False)
 
-        self.ser = Service(executable_path=r"C:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\109.0.5414.25\chromedriver.exe")
+        self.ser = Service(executable_path=r"D:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\109.0.5414.25\chromedriver.exe")
         self.driver = webdriver.Chrome(service=self.ser, options=self.chrome_options)
         self.driver.get(profile.start_url or "https://www.bbc.com/news")
         self.driver.maximize_window()
