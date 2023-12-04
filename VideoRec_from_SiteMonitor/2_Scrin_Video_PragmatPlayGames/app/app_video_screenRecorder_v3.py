@@ -34,30 +34,48 @@ def VideoRecorder(filename, duration, fps=24.0, region=None, top_text=""):
             frame = np.array(img)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
 
-            # Добавление текста "Hello" после 5-й секунды
+            font = cv2.FONT_HERSHEY_SIMPLEX
+
+            # Добавление ВНИЗУ черной подложки с отступами
+            cv2.rectangle(frame, (7, region['height'] - 290), (region['width'] - 7, region['height'] - 140), (0, 0, 255), -1)
+            # Добавление ВНИЗУ текста на подложку 
+            text = "FIRST DEPOSIT BONUS +500%"
+            text_size = cv2.getTextSize(text, font, 1, 2)[0]
+            text_x = (frame.shape[1] - text_size[0]) // 2
+            text_y = region['height'] - 230  # Регулируйте координаты Y для центрирования текста
+            cv2.putText(frame, text, (text_x, text_y), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            # Дополнительный текст ВНИЗУ 
+            sub_text = "1win1win.com"
+            sub_text_size = cv2.getTextSize(sub_text, font, 1.5, 2)[0]
+            sub_text_x = (frame.shape[1] - sub_text_size[0]) // 2
+            sub_text_y = region['height'] - 170  # Регулируйте координаты Y для центрирования текста
+            cv2.putText(frame, sub_text, (sub_text_x, sub_text_y), font, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
+
+            # Добавление водяных знаков после 5-й секунды
             if time.perf_counter() - start_time > 5:
-                font = cv2.FONT_HERSHEY_SIMPLEX
+
+                # cv2.putText(frame, top_text, (координаты_x, координаты_y), font, размер_шрифта, (0, 255, 255), толщина_подложки, cv2.LINE_AA)
 
                 # Черная подложка для текста
-                cv2.putText(frame, top_text, (10, 50), font, 0.9, (0, 0, 0), 7, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (20, 80), font, 0.9, (0, 0, 0), 7, cv2.LINE_AA)
                 # Красный текст поверх подложки
-                cv2.putText(frame, top_text, (10, 50), font, 0.9, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (20, 80), font, 0.9, (0, 0, 255), 2, cv2.LINE_AA)
 
-                # Черная подложка для текста
-                cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 255, 0), 7, cv2.LINE_AA)
-                # Красный текст поверх подложки
-                cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+                # # Зеленая подложка для текста
+                # cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 255, 0), 7, cv2.LINE_AA)
+                # # Черный текст поверх подложки
+                # cv2.putText(frame, top_text, (200, 950), font, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
 
 
                 # Белая обводка для черного текста
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (255, 255, 255), 4, cv2.LINE_AA)
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (255, 255, 255), 5, cv2.LINE_AA)
                 # Черный текст поверх белой обводки
                 cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (0, 0, 0), 2, cv2.LINE_AA)
 
-                # Белая обводка для черного текста
-                # cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 150), font, 0.8, (255, 0, 0), 7, cv2.LINE_AA)
-                # Черный текст поверх белой обводки
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 145), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                # Желтая подложка для текста
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 148), font, 0.7, (0, 255, 255), 9, cv2.LINE_AA)
+                # Красный текст поверх подложки
+                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 147), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
 
 
 

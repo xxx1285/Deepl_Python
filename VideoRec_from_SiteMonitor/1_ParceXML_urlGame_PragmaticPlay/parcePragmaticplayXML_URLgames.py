@@ -1,4 +1,5 @@
 import requests
+import os
 from bs4 import BeautifulSoup
 
 def find_a_href_by_key_sitemap_index(url, key_in_href):
@@ -29,7 +30,11 @@ def main():
     sitemaps_games_urls = find_a_href_by_key_sitemap_index(sitemap_url, "/games")
     all_games_urls = find_a_href_by_key__all_games(sitemaps_games_urls, "/en/")
 
-    with open(r'VideoRec_from_SiteMonitor\1_ParceXML_take_url_all_Games\output\output-urls-games.txt', 'w') as file:
+    output_dir = r'VideoRec_from_SiteMonitor\1_ParceXML_urlGame_PragmaticPlay\output'
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_file = os.path.join(output_dir, 'output-urls-games-02-12-2023.txt')
+    with open(output_file, 'w') as file:
         for url in all_games_urls:
             file.write(url + '\n')
 

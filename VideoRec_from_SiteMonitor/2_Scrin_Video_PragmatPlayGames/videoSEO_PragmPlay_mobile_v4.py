@@ -1,3 +1,5 @@
+# проверка Undetect браузер - https://whoer.net/ru
+
 import os
 import csv
 import time
@@ -19,9 +21,90 @@ from threading import Thread
 from app.app_video_screenRecorder_v3 import VideoRecorder
 from app.app_audioText_on_audioMUS_v1 import audioTextSpeach_on_audioMusic
 from app.app_delete_old_BIG_video import delete_files_from_list
+from app.app_perefraziruem_text_NLTK_SpaCy import paraphrase_with_spacy
 
 MY_SITE_NAME = "1win1win.com"
 
+# URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
+URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-games-02-12-2023.txt'
+OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games3.csv"
+
+
+BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v2/"
+BG_MUS_NO_AUTHOR = "D:\\Gembling\\Deepl_Python\\Deepl_Python\\SETTINGS\\Music-no-author"
+
+LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\video_to_delete.txt"
+BASE_PATH_LIST_VIDEO_TO_DEL = "D://Gembling//Deepl_Python//Deepl_Python//"
+
+
+
+def create_folders(url_name_game):
+    """
+    Создание папок
+    А так было:
+        output_mp3_path = f"{folder_path}/audio/"
+        if not os.path.exists(os.path.dirname(output_mp3_path)):
+            os.makedirs(os.path.dirname(output_mp3_path))
+    """
+    folders = {
+        "folder_path": f"{BASE_PATH}{url_name_game}",
+        "video_path": f"{BASE_PATH}{url_name_game}/video",
+        "scrin_images_path": f"{BASE_PATH}{url_name_game}/images/",
+        "audio_path": f"{BASE_PATH}{url_name_game}/audio/"
+    }
+    for path in folders.values():
+        if not os.path.exists(path):
+            os.makedirs(path)
+    return folders
+
+
+# Клики с нажатием играть и скриншотами
+def take_screenshots(driver, start_index, num_screenshots, x_to_play, y_to_play, url_name_game, scrin_images_path, crop_required=True):
+    success = True  # Флаг успешности операции
+    for i in range(start_index, start_index + num_screenshots):
+    # 30 раз для 15 секунд, если пауза 0.5 секунды
+        if x_to_play != 0:
+            actions = ActionChains(driver)
+            actions.move_by_offset(x_to_play, y_to_play).click().perform()
+            actions.move_by_offset(-x_to_play, -y_to_play).perform()
+            time.sleep(3)
+        # Сохранение скриншота с уникальным именем
+        scrin_images_file = f"{scrin_images_path}image-slot-{url_name_game}-{i}.png"
+
+        try:
+            screenshot_img = driver.find_element(By.CLASS_NAME, "loading-holder")
+            # driver.get_screenshot_as_file(scrin_images_file
+            screenshot_img.screenshot(scrin_images_file)
+        except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
+            print(f"Элемент 'loading-holder' для {url_name_game} не найден. Делаем <canvas>.")
+            try:
+                # Находим элемент canvas и делаем его скриншот
+                canvas = driver.find_element(By.TAG_NAME, "canvas")
+                canvas.screenshot(scrin_images_file)
+            except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
+                print(f"Элемент <canvas> также не найден {url_name_game}.")
+                success = False
+                break
+        try:
+            # Конвертация в JPEG и обрезка
+            image = Image.open(scrin_images_file)
+            if crop_required:
+                # Обрезка изображения и сохранение в формате .webp
+                width, height = image.size
+                crop_rectangle = (0, 0, width, width)
+                image = image.crop(crop_rectangle)
+                img_screenshot_path = f"{scrin_images_path}image-slot-{url_name_game}-{i}.webp"
+                image.convert('RGB').save(img_screenshot_path, "WEBP", quality=30)
+            else:
+                # Просто конвертация в формат .jpg
+                img_screenshot_path = f"{scrin_images_path}image-slot-{url_name_game}-{i}.jpg"
+                image.convert('RGB').save(img_screenshot_path, "JPEG", quality=70)
+            # Удаление временного файла PNG
+            os.remove(scrin_images_file)
+        except Exception as e:
+            print(f"Ошибка при обработке изображения: {e}")
+            success = False
+    return success
 
 
 def open_urls_and_click_button(file_path):
@@ -35,6 +118,7 @@ def open_urls_and_click_button(file_path):
     chrome_options = Options()
     chrome_options.add_argument(f"user-agent={random.choice(user_agent)}")
     chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--mute-audio")
     # убираем надпись о Тестовом ПО в Браузере
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option('useAutomationExtension', False)
@@ -49,7 +133,7 @@ def open_urls_and_click_button(file_path):
     chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
 
     # Chrome Service
-    ser = Service(executable_path=r"C:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\109.0.5414.25\chromedriver.exe")
+    ser = Service(executable_path=r"D:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\119.0.6045.105\chromedriver.exe")
     driver = webdriver.Chrome(service=ser, options=chrome_options)
     driver.maximize_window()
 
@@ -59,11 +143,13 @@ def open_urls_and_click_button(file_path):
         urls = [line.strip() for line in file.readlines()]
 
     # Создаем и открываем CSV файл для записи
-    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'iframe_url', 'video_src', \
-                'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original']
-    with open(r'VideoRec_from_SiteMonitor\output_PragmaticGames\output_games.csv', mode='w', newline='', encoding='utf-8') as csv_file:
+    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'text_game_NLTK', 'text_game_NLTK_1000_and_nachalo', 'iframe_url', 
+                'video_src', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original', 
+                'name_random_mus_file']
+    with open(OUTPUT_GAMES_CSV, mode='a', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writeheader()
+        # Эту строку нужно закомментировать - это заголовки которые при "a" не добавляются
+        # writer.writeheader()
         url_counter = 1
 
         for url in urls:
@@ -71,13 +157,9 @@ def open_urls_and_click_button(file_path):
                 driver.get(url)
                 time.sleep(8)
 
-                flag = False
-
-
                 # BTN 18 Years
                 flag = False
                 try:
-                    # Ожидание, пока элемент не станет кликабельным
                     element = WebDriverWait(driver, 10).until(
                         EC.element_to_be_clickable((By.XPATH, '//*[@id="game_pop"]/div[3]/a[1]/span'))
                     )
@@ -98,28 +180,36 @@ def open_urls_and_click_button(file_path):
                 try:
                     # Название и Описание игры
                     title_game = driver.find_element(By.CLASS_NAME, "game-details__title").text
-                    title_game = title_game.replace("™", "")
+                    title_game = title_game.replace("™", "").replace("®", "")
                     text_game = driver.find_element(By.CLASS_NAME, "game-details__description").text
-                    text_game = text_game.replace("™", "")
+                    text_game = text_game.replace("™", "").replace("®", "")
                     url_name_game = url.strip('/').split('/')[-1]
                 except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
                     pass
+                
+                # Изминенный текст с использованием NLTK
+                text_game_NLTK = paraphrase_with_spacy(text_game)
+                # Приставка под текст и аудио где в начале ключевое слово
+                pristavka_nachalo_text = title_game + " is available on the " + MY_SITE_NAME + " website\n"
 
-                # Create folder game - Создание папки, если она еще не существует
-                folder_path = f"VideoRec_from_SiteMonitor/output_PragmaticGames/games/{url_name_game}"
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
+                text_game_NLTK_1000_and_nachalo = pristavka_nachalo_text + text_game_NLTK[:1000]
+
+                # Инициализация каталогов
+                folders = create_folders(url_name_game)
+                scrin_images_path = folders['scrin_images_path']
 
                 # Находим iframe DEMO Game
                 try:
                     iframe = driver.find_element(By.ID, "iframe")
                     iframe_src = iframe.get_attribute("src")
+                    if not iframe_src:  # якщо src є None або порожнім
+                        iframe_src = iframe.get_attribute("data-src")
                     if iframe_src and iframe_src.startswith("http"):
                         driver.get(iframe_src)
                     else:
                         print(f"Недійсний URL iframe: {iframe_src}")
                         continue  # Пропустити цю ітерацію циклу
-                    driver.fullscreen_window()  # полноекранный режим
+                    driver.fullscreen_window()
                     time.sleep(12)
                 except InvalidArgumentException:
                     print(f"Невірний URL iframe, пропускаємо: {iframe_src}")
@@ -147,15 +237,19 @@ def open_urls_and_click_button(file_path):
                 x_to_click = 270
                 y_to_click = 650
 
+                # Скрин главной страницы
+                time.sleep(1)
+                success = take_screenshots(driver, 0, 1, 0, 0, url_name_game, scrin_images_path, crop_required=False)
+                if not success:
+                    continue
+
                 for i in range(3):
                     # Создание цепочки действий для клика
                     actions = ActionChains(driver)
                     actions.move_by_offset(x_to_click, y_to_click).click().perform()
-
                     # Сброс положения курсора
                     actions = ActionChains(driver)
                     actions.move_by_offset(-x_to_click, -y_to_click).perform()
-
                     # Увеличение Y-координаты для следующего клика
                     y_to_click += 80  # Например, увеличивать на 30 каждый раз
 
@@ -176,67 +270,24 @@ def open_urls_and_click_button(file_path):
                 # height = window_rect['height']
 
                 # VIDEO REC
-                video_path = f"{folder_path}/video/{url_name_game}-777.mp4"
-                if not os.path.exists(os.path.dirname(video_path)):
-                    os.makedirs(os.path.dirname(video_path))
+                video_path = folders['video_path']
+                video_path_file = f"{video_path}/{url_name_game}-777del.mp4"
+
+                
                 #webm mkv mp4
                 # x, y, width, height = 0, 0, 390, 844  # Пример значений для iPhone 12 Pro 390*844 - 1170, 2532
                 x, y, width, height = 0, 0, 540, 960
                 region = {"top": y, "left": x, "width": width, "height": height}
-                video_thread = Thread(target=VideoRecorder, args=(video_path, 30, 24.0, region, MY_SITE_NAME))   #35, 4.0
+                video_thread = Thread(target=VideoRecorder, args=(video_path_file, 30, 24.0, region, MY_SITE_NAME))   #35, 4.0
                 video_thread.start()
 
 
                 #################################################################
-                # Клики с нажатием играть и скриншотами
+                # Робимо скріни та кліки по кнопці (driver, start_index, num_screenshots, x_to_play, y_to_play, url_name_game)
                 #################################################################
-                for i in range(7):  # 30 раз для 15 секунд, если пауза 0.5 секунды
-                    actions = ActionChains(driver)
-                    actions.move_by_offset(x_to_play, y_to_play).click().perform()
-                    actions.move_by_offset(-x_to_play, -y_to_play).perform()
-                    time.sleep(3)
-
-                    # Сохранение скриншота с уникальным именем
-                    scrin_images_path = f"{folder_path}/scrin-images/"
-                    if not os.path.exists(os.path.dirname(scrin_images_path)):
-                        os.makedirs(os.path.dirname(scrin_images_path))
-
-
-                    if i < 6:
-                        screenshot_path = f"{scrin_images_path}image-slot-{url_name_game}-{i}.png"
-
-                        try:
-                            screenshot_img = driver.find_element(By.CLASS_NAME, "loading-holder")
-                            # driver.get_screenshot_as_file(screenshot_path
-                            screenshot_img.screenshot(screenshot_path)
-                        except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
-                            # print(f"Элемент 'loading-holder' для {title_game} не найден. Делаем <canvas>.")
-                            try:
-                                # Находим элемент canvas и делаем его скриншот
-                                canvas = driver.find_element(By.TAG_NAME, "canvas")
-                                canvas.screenshot(screenshot_path)
-                            except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
-                                print(f"Элемент <canvas> также не найден {title_game}.")
-                                flag = True
-                                break
-
-
-                        # Конвертация в JPEG и обрезка
-                        image = Image.open(screenshot_path)
-                        width, height = image.size
-                        # Обрезка для получения квадрата 1:1 с отступом сверху на 100 пикселей
-                        # crop_rectangle = (0, 90, width,90 + width)  # (left, upper, right, lower)
-                        crop_rectangle = (0, 0, width, width)
-                        cropped_image = image.crop(crop_rectangle)
-
-                        img_screenshot_path = f"{scrin_images_path}image-slot-{url_name_game}-{i}.webp"
-                        cropped_image.convert('RGB').save(img_screenshot_path, "WEBP", quality=30)
-
-                        # Удаление временного файла PNG
-                        os.remove(screenshot_path)
-
-                if flag:
-                    # пропуск остального кода внешнего цикла и переход к следующей итерации
+                success = take_screenshots(driver, 1, 7, x_to_play, y_to_play, url_name_game, scrin_images_path, crop_required=True)
+                if not success:
+                    # Обработка ситуации, пропуск оставшейся части цикла
                     continue
 
                 time.sleep(1)
@@ -245,17 +296,13 @@ def open_urls_and_click_button(file_path):
                 #################################################################
                 # Аудио с текста и накладываем музыку
                 #################################################################
-                bg_music_folder = "SETTINGS/Music-no-author"
-                output_mp3_path = f"{folder_path}/audio/"
-                if not os.path.exists(os.path.dirname(output_mp3_path)):
-                    os.makedirs(os.path.dirname(output_mp3_path))
-                text_in_audio = text_game[:500]
-                audioTextSpeach_on_audioMusic(text_in_audio, lang='en', output_mp3_path=output_mp3_path, bg_music_folder=bg_music_folder)
+                audio_path = folders['audio_path']
+                name_random_mus_file = audioTextSpeach_on_audioMusic(text_game_NLTK_1000_and_nachalo, lang='en', audio_path=audio_path)
 
 
                 # Путь к аудиофайлу, который был создан
-                audio_file = f"{output_mp3_path}/output.mp3"
-                final_video_path = f"{folder_path}/video/video-{url_name_game}.mp4"
+                audio_file = f"{audio_path}output.mp3"
+                final_video_path = f"{folders['folder_path']}/video/{url_name_game}.mp4"
                 # Объединение видео и аудио
                 # video_clip = VideoFileClip(video_path)
                 # audio_clip = AudioFileClip(audio_file)
@@ -264,7 +311,7 @@ def open_urls_and_click_button(file_path):
 
                 # Команда для FFmpeg
                 # ffmpeg_cmd = f'ffmpeg -i {video_path} -i {audio_file} -c:v copy -c:a aac -strict experimental {final_video_path}'
-                ffmpeg_cmd = f'ffmpeg -i {video_path} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental {final_video_path}'
+                ffmpeg_cmd = f'ffmpeg -i {video_path_file} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental {final_video_path}'
                 # Запуск FFmpeg
                 subprocess.run(ffmpeg_cmd, shell=True, check=True)
 
@@ -274,16 +321,19 @@ def open_urls_and_click_button(file_path):
                     'title_game': title_game,
                     'alias': url_name_game,
                     'text_game': text_game,
+                    'text_game_NLTK': text_game_NLTK,
+                    'text_game_NLTK_1000_and_nachalo': text_game_NLTK_1000_and_nachalo,
                     'iframe_url': iframe_src,
-                    'video_src': final_video_path,  # Путь к видеофайлу
+                    'video_src': f"{url_name_game}/video/{url_name_game}.mp4",  # Путь к видеофайлу final_video_path
                     # Пути к изображениям (пример)
-                    'image_0': f"{scrin_images_path}image-slot-{url_name_game}-0.jpg",
-                    'image_1': f"{scrin_images_path}image-slot-{url_name_game}-1.jpg",
-                    'image_2': f"{scrin_images_path}image-slot-{url_name_game}-2.jpg",
-                    'image_3': f"{scrin_images_path}image-slot-{url_name_game}-3.jpg",
-                    'image_4': f"{scrin_images_path}image-slot-{url_name_game}-4.jpg",
-                    'image_5': f"{scrin_images_path}image-slot-{url_name_game}-5.jpg",
-                    'url_original': url  # Исходный URL
+                    'image_0': f"{url_name_game}/images/image-slot-{url_name_game}-0.jpg",
+                    'image_1': f"{url_name_game}/images/image-slot-{url_name_game}-1.jpg",
+                    'image_2': f"{url_name_game}/images/image-slot-{url_name_game}-2.jpg",
+                    'image_3': f"{url_name_game}/images/image-slot-{url_name_game}-3.jpg",
+                    'image_4': f"{url_name_game}/images/image-slot-{url_name_game}-4.jpg",
+                    'image_5': f"{url_name_game}/images/image-slot-{url_name_game}-5.jpg",
+                    'url_original': url,  # Исходный URL
+                    'name_random_mus_file': name_random_mus_file
                 }
 
                 writer.writerow(row_data)
@@ -293,12 +343,12 @@ def open_urls_and_click_button(file_path):
                 time.sleep(5)
                 # Удаление исходного видеофайла - Попытка удаления файла
                 # Предполагаем, что у вас есть переменная video_path для пути к видеофайлу
-                def add_path_to_delete_file(path, delete_list_path):
-                    with open(delete_list_path, "a") as file:  # "a" для добавления в конец файла
+                def add_path_to_delete_file(path, LIST_VIDEO_TO_DELETE):
+                    with open(LIST_VIDEO_TO_DELETE, "a") as file:  # "a" для добавления в конец файла
                         file.write(path + "\n")  # Добавление пути к файлу с новой строки
 
-                delete_list_path = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\video_to_delete.txt"  # Путь к текстовому файлу со списком файлов для удаления
-                add_path_to_delete_file(video_path, delete_list_path)
+
+                add_path_to_delete_file(video_path_file, LIST_VIDEO_TO_DELETE)
 
                 print(title_game)
 
@@ -310,12 +360,11 @@ def open_urls_and_click_button(file_path):
 
         driver.quit()
 
-    # delete_list_path = "paths_to_delete.txt"
-    base_path_del = "C://Gembling//Deepl_Python//Deepl_Python//"
+    # Видаляємо старі та великі відео
     try:
-        delete_files_from_list(delete_list_path, base_path_del)
+        delete_files_from_list(LIST_VIDEO_TO_DELETE, BASE_PATH_LIST_VIDEO_TO_DEL)
     except Exception as e:
         print(f"Произошла ошибка при удалении файлов: {e}")
 
 # Замените 'output-my.txt' на путь к вашему файлу и укажите правильный путь к текущей папке
-open_urls_and_click_button(r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt')
+open_urls_and_click_button(URLS_SLOTS)

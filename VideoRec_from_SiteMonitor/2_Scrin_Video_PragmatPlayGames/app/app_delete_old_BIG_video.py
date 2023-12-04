@@ -1,6 +1,7 @@
 import os
 import time
 
+
 def delete_files_from_list(delete_list_path, base_path):
     with open(delete_list_path, "r") as file:
         paths = file.readlines()

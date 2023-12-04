@@ -203,12 +203,17 @@ async def upload_video(youtube, video_file, title, text_game="", video_urls=None
         additional_description = create_video_list_string(video_urls)
     new_description = (truncate_to_last_word(text_game, 400) + "\nPlay slot " + title + " 1win1win.com\n" +
                     tag_from_name + " " + " ".join(selected_hashtags) + "\n\n" + additional_description)
+    # теги без решетки в конце
+    new_tag = [tag.strip('#') for tag in selected_hashtags]
+    additional_tag = random.choice(['stake', 'slots', 'staking', 'playing'])
+    new_tag = new_tag.append(additional_tag)
     print(new_title)
+
     body = {
         'snippet': {
             'title': new_title,
             'description': new_description,
-            'tags': ['stake', 'slots', 'staking', 'playing'],
+            'tags': new_tag,
             'categoryId': '22',
             'defaultLanguage': 'en',
             'defaultAudioLanguage': 'en'
@@ -229,9 +234,12 @@ async def upload_video(youtube, video_file, title, text_game="", video_urls=None
 
     try:
         response = insert_request.execute()
+
+        # Загрузка заставки
         video_id = response['id']
         thumbnail_file = YOUTUBE_ZASTAVKA_THUMB_JPG  # Укажите путь к файлу миниатюры
         upload_thumbnail(youtube, video_id, thumbnail_file)
+
         print(f"Video slot - {title}. Video ID: {response['id']}")
         await send_message(f"Успішно завантажено відео: {title}")
         return True

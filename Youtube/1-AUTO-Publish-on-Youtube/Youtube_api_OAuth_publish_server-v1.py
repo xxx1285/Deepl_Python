@@ -32,6 +32,7 @@ CSV_ALL_VIDEOS = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/csv/out
 GAMES_VIDEO_CATALOG = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/video/games-v1/'
 OAUTH_TOKEN = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/json_key/token-v2.json'
 TELEGRAM_BOT_TOKEN = r'/home/vilmebel/dynamiteminergames.com/www/TELEGRAM-BOT/telegram_bot_tokens.json'
+# YOUTUBE_ZASTAVKA_THUMB_JPG = r'Youtube\1-AUTO-Publish-on-Youtube\test\zastavka-test.jpg'
 
 # Настройка Telegram бота
 with open(TELEGRAM_BOT_TOKEN, 'r') as file:
@@ -90,29 +91,6 @@ def generate_random_title(title):
         f"CHAMPION {title_upper} 🏆 1WIN CHAMPION PLAY",
         f"UNFORGETTABLE {title_upper} 🎃 1WIN SLOT ADVENTURE",
         f"HOT {title_upper} 🔥 1WIN HOT STREAK",
-        f"ELECTRIC {title_upper} ⚡ 1WIN ELECTRIC WINS",
-        f"MYSTICAL {title_upper} 🌙 1WIN NIGHT THRILLS",
-        f"CHALLENGING {title_upper} 🔥 1WIN ODDS CHALLENGE",
-        f"ENCHANTING {title_upper} 🌟 1WIN MAGIC WINS",
-        f"ULTIMATE {title_upper} 💰 1WIN JACKPOT QUEST",
-        f"EXPLORATORY {title_upper} 🎃 1WIN SLOT EXPLORER",
-        f"ROYAL {title_upper} 👑 1WIN KING OF SLOTS",
-        f"STRATEGIC {title_upper} 🏆 1WIN WINNING TACTICS",
-        f"EXCITEMENT {title_upper} 🌟 1WIN JACKPOT CHASE",
-        f"THRILL {title_upper} 💰 1WIN BIG WIN THRILLS",
-        f"ADVENTURE {title_upper} 🔥 1WIN SPIN MANIA",
-        f"LUXURY {title_upper} 💎 1WIN LUXURY STAKES",
-        f"CELEBRATION {title_upper} 🎃 1WIN MEGA PRIZES",
-        f"ENERGY {title_upper} ⚡ 1WIN WINNING STREAK",
-        f"LUCK {title_upper} 🍀 1WIN LUCKY SPINS",
-        f"EPIC {title_upper} 🌟 1WIN EPIC WINS",
-        f"AMAZEMENT {title_upper} 🎰 1WIN AMAZING WINS",
-        f"VICTORY {title_upper} 🥇 1WIN TOP JACKPOTS",
-        f"FEVER {title_upper} 🌟 1WIN SPIN FRENZY",
-        f"RICHES {title_upper} 🤑 1WIN RICHES HUNT",
-        f"MAGIC {title_upper} 🌟 1WIN MAGIC SPINS",
-        f"SECRET {title_upper} 💰 1WIN WINNING SECRETS",
-        f"CHAMPION {title_upper} 🏆 1WIN CHAMPION PLAY",
         f"JOURNEY {title_upper} 🎃 1WIN SLOT ADVENTURE",
         f"HOT {title_upper} 🔥 1WIN HOT STREAK",
         f"ELECTRIC {title_upper} ⚡ 1WIN ELECTRIC WINS",
@@ -123,6 +101,60 @@ def generate_random_title(title):
         f"EXPLORE {title_upper} 🎃 1WIN SLOT EXPLORER",
         f"KINGDOM {title_upper} 👑 1WIN KING OF SLOTS",
         f"STRATEGY {title_upper} 🏆 1WIN WINNING TACTICS",
+        f"{title_upper} 🌟 EXCITING JACKPOT CHASE",
+        f"{title_upper} 💰 THRILLING BIG WIN THRILLS",
+        f"{title_upper} 🔥 ADVENTURE SPIN MANIA",
+        f"{title_upper} 💎 LUXURIOUS LUXURY STAKES",
+        f"{title_upper} 🎃 EXPLOSIVE MEGA PRIZES",
+        f"{title_upper} ⚡ ENERGIZING WINNING STREAK",
+        f"{title_upper} 🍀 LUCKY LUCKY SPINS",
+        f"{title_upper} 🌟 EPIC EPIC WINS",
+        f"{title_upper} 🎃 AMAZING AMAZING WINS",
+        f"{title_upper} 🥇 TOP TOP JACKPOTS",
+        f"{title_upper} 🌟 FRENZIED SPIN FRENZY",
+        f"{title_upper} 🤑 RICH RICHES HUNT",
+        f"{title_upper} 🌟 MAGICAL MAGIC SPINS",
+        f"{title_upper} 🚀 DYNAMIC WIN EXPLOSION",
+        f"{title_upper} 💫 SPECTACULAR LUCKY BREAK",
+        f"{title_upper} 🌈 COLOURFUL SLOT FANTASY",
+        f"{title_upper} 🌟 GLITTERING PRIZE FRENZY",
+        f"{title_upper} 🔮 MYSTICAL FORTUNE HUNT",
+        f"{title_upper} 🎉 CELEBRATORY MEGA WINS",
+        f"{title_upper} 🌙 NIGHTTIME JACKPOT ADVENTURE",
+        f"{title_upper} ⭐ STAR-STUDDED WINNING GALORE",
+        f"{title_upper} 💸 FLASHY MONEY SPREE",
+        f"{title_upper} 🎲 DAZZLING GAMBLING THRILLS",
+        f"{title_upper} 🏆 CHAMPION'S GOLDEN TROPHY",
+        f"{title_upper} 🎰 VIBRANT SLOT SAGA",
+        f"{title_upper} 💥 BURSTING BIG SCORE",
+        f"{title_upper} 🌠 BRILLIANT STREAKS | PRAGMATIC PLAY",
+        f"{title_upper} ✨ GOLDEN WINS AWAITS | PRAGMATIC PLAY",
+        f"{title_upper} 🎯 TARGET HUGE REWARDS | PRAGMATIC PLAY",
+        f"{title_upper} 💥 EXPLORE EPIC WINS | PRAGMATIC PLAY",
+        f"{title_upper} 🔥 FLAMING HOT PRIZES | PRAGMATIC PLAY",
+        f"{title_upper} 🌪 WHIRLWIND OF FORTUNE | PRAGMATIC PLAY",
+        f"{title_upper} 💫 SPIN INTO ORBIT | PRAGMATIC PLAY",
+        f"{title_upper} 🎈 SKY-HIGH JACKPOTS | PRAGMATIC PLAY",
+        f"{title_upper} 🌐 GLOBAL WINNING SPINS | PRAGMATIC PLAY",
+        f"{title_upper} ⚡ ELECTRIC WINS | PRAGMATIC PLAY",
+        f"{title_upper} 🧲 MAGNETIC MEGA WINS | PRAGMATIC PLAY",
+        f"{title_upper} 🚀 BLAST OFF BIG WINS | PRAGMATIC PLAY",
+        f"{title_upper} 🏝 TROPICAL TREASURE HUNT | PRAGMATIC PLAY",
+        f"{title_upper} 🎇 SPARKLING VICTORY RUSH | PRAGMATIC PLAY",
+        f"{title_upper} 🍾 CHAMPAGNE SHOWERS OF WINS | PRAGMATIC PLAY",
+        f"{title_upper} 💎 DIAMOND RICHES BONANZA | PRAGMATIC PLAY",
+        f"{title_upper} 🌌 COSMIC CASH BLAST | PRAGMATIC PLAY",
+        f"{title_upper} 🎰 REEL THRILL SPINS | PRAGMATIC PLAY",
+        f"{title_upper} 🎢 ROLLERCOASTER OF REWARDS | PRAGMATIC PLAY",
+        f"{title_upper} ⏳ TIMELESS TREASURES CHASE | PRAGMATIC PLAY",
+        f"{title_upper} 🌊 OCEAN OF OPPORTUNITY | PRAGMATIC PLAY",
+        f"{title_upper} 🔑 KEYS TO FORTUNE | PRAGMATIC PLAY",
+        f"{title_upper} 🌞 SUNSHINE OF SUCCESS | PRAGMATIC PLAY",
+        f"{title_upper} 🍀 FIELD OF FORTUNES | PRAGMATIC PLAY",
+        f"{title_upper} 🌟 GALACTIC GOLD RUSH | PRAGMATIC PLAY",
+        f"{title_upper} 🍭 SWEET SWEEPSTAKES | PRAGMATIC PLAY",
+        f"$1 200 000 🔥 {title_upper} SLOT PRAGMATIC PLAY",
+        f"$1 070 000 {title_upper} 🍾 COSMIC CASH SLOT PRAGMATIC PLAY",
     ]
     return random.choice(templates)
 
@@ -222,12 +254,17 @@ async def upload_video(youtube, video_file, title, text_game="", video_urls=None
         additional_description = create_video_list_string(video_urls)
     new_description = (truncate_to_last_word(text_game, 500) + "\n\nPlay slot " + title + " https://1win1win.com/\n" +
                     tag_from_name + " " + " ".join(selected_hashtags) + "\n\n" + additional_description)
+    # теги без решетки в конце
+    new_tag = [tag.strip('#') for tag in selected_hashtags]
+    additional_tag = random.choice(['stake', 'slots', 'staking', 'playing'])
+    new_tag = new_tag.append(additional_tag)
     print(new_title)
+
     body = {
         'snippet': {
             'title': new_title,
             'description': new_description,
-            'tags': ['stake', 'slots', 'staking', 'playing'],
+            'tags': new_tag,
             'categoryId': '22',
             'defaultLanguage': 'en',
             'defaultAudioLanguage': 'en'

@@ -21,16 +21,21 @@ from threading import Thread
 from app.app_video_screenRecorder_v3 import VideoRecorder
 from app.app_audioText_on_audioMUS_v1 import audioTextSpeach_on_audioMusic
 from app.app_delete_old_BIG_video import delete_files_from_list
+from app.app_perefraziruem_text_NLTK_SpaCy import paraphrase_with_spacy
 
 MY_SITE_NAME = "1win1win.com"
+base_path_del = os.path.dirname(os.path.abspath(__file__))
 
-URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
-OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games2.csv"
+# URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
+URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-test.txt'
+OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games3-test.csv"
 
-BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v2/"
-BG_MUS_NO_AUTHOR = "D:\\Gembling\\Deepl_Python\\Deepl_Python\\SETTINGS\\Music-no-author"
 
-LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\video_to_delete.txt"
+BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v3-test/"
+BG_MUS_NO_AUTHOR = "D:\\Gembling\\Deepl_Python\\Deepl_Python\\SETTINGS\\Music-no-author-test"
+
+LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\video_to_delete-test.txt"
+BASE_PATH_LIST_VIDEO_TO_DEL = "D://Gembling//Deepl_Python//Deepl_Python//"
 
 
 
@@ -114,6 +119,7 @@ def open_urls_and_click_button(file_path):
     chrome_options = Options()
     chrome_options.add_argument(f"user-agent={random.choice(user_agent)}")
     chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--mute-audio")
     # убираем надпись о Тестовом ПО в Браузере
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option('useAutomationExtension', False)
@@ -138,11 +144,13 @@ def open_urls_and_click_button(file_path):
         urls = [line.strip() for line in file.readlines()]
 
     # Создаем и открываем CSV файл для записи
-    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'iframe_url', 'video_src', \
-                'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original']
-    with open(OUTPUT_GAMES_CSV, mode='w', newline='', encoding='utf-8') as csv_file:
+    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'text_game_NLTK', 'text_game_NLTK_1000_and_nachalo', 'iframe_url', 
+                'video_src', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original', 
+                'name_random_mus_file']
+    with open(OUTPUT_GAMES_CSV, mode='a', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writeheader()
+        # Эту строку нужно закомментировать - это заголовки которые при "a" не добавляются
+        # writer.writeheader()
         url_counter = 1
 
         for url in urls:
@@ -173,12 +181,19 @@ def open_urls_and_click_button(file_path):
                 try:
                     # Название и Описание игры
                     title_game = driver.find_element(By.CLASS_NAME, "game-details__title").text
-                    title_game = title_game.replace("™", "")
+                    title_game = title_game.replace("™", "").replace("®", "")
                     text_game = driver.find_element(By.CLASS_NAME, "game-details__description").text
-                    text_game = text_game.replace("™", "")
+                    text_game = text_game.replace("™", "").replace("®", "")
                     url_name_game = url.strip('/').split('/')[-1]
                 except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
                     pass
+                
+                # Изминенный текст с использованием NLTK
+                text_game_NLTK = paraphrase_with_spacy(text_game)
+                # Приставка под текст и аудио где в начале ключевое слово
+                pristavka_nachalo_text = title_game + " is available on the " + MY_SITE_NAME + " website\n"
+
+                text_game_NLTK_1000_and_nachalo = pristavka_nachalo_text + text_game_NLTK[:1000]
 
                 # Инициализация каталогов
                 folders = create_folders(url_name_game)
@@ -224,6 +239,7 @@ def open_urls_and_click_button(file_path):
                 y_to_click = 650
 
                 # Скрин главной страницы
+                time.sleep(1)
                 success = take_screenshots(driver, 0, 1, 0, 0, url_name_game, scrin_images_path, crop_required=False)
                 if not success:
                     continue
@@ -256,7 +272,7 @@ def open_urls_and_click_button(file_path):
 
                 # VIDEO REC
                 video_path = folders['video_path']
-                video_path_file = f"{video_path}/{url_name_game}-777.mp4"
+                video_path_file = f"{video_path}/{url_name_game}-777del.mp4"
 
                 
                 #webm mkv mp4
@@ -282,13 +298,12 @@ def open_urls_and_click_button(file_path):
                 # Аудио с текста и накладываем музыку
                 #################################################################
                 audio_path = folders['audio_path']
-                text_in_audio = text_game[:500]
-                audioTextSpeach_on_audioMusic(text_in_audio, lang='en', audio_path=audio_path)
+                name_random_mus_file = audioTextSpeach_on_audioMusic(text_game_NLTK_1000_and_nachalo, lang='en', audio_path=audio_path)
 
 
                 # Путь к аудиофайлу, который был создан
                 audio_file = f"{audio_path}output.mp3"
-                final_video_path = f"{folders['folder_path']}/video/video-{url_name_game}.mp4"
+                final_video_path = f"{folders['folder_path']}/video/{url_name_game}.mp4"
                 # Объединение видео и аудио
                 # video_clip = VideoFileClip(video_path)
                 # audio_clip = AudioFileClip(audio_file)
@@ -307,8 +322,10 @@ def open_urls_and_click_button(file_path):
                     'title_game': title_game,
                     'alias': url_name_game,
                     'text_game': text_game,
+                    'text_game_NLTK': text_game_NLTK,
+                    'text_game_NLTK_1000_and_nachalo': text_game_NLTK_1000_and_nachalo,
                     'iframe_url': iframe_src,
-                    'video_src': f"{url_name_game}/video/video-{url_name_game}.mp4",  # Путь к видеофайлу final_video_path
+                    'video_src': f"{url_name_game}/video/{url_name_game}.mp4",  # Путь к видеофайлу final_video_path
                     # Пути к изображениям (пример)
                     'image_0': f"{url_name_game}/images/image-slot-{url_name_game}-0.jpg",
                     'image_1': f"{url_name_game}/images/image-slot-{url_name_game}-1.jpg",
@@ -316,7 +333,8 @@ def open_urls_and_click_button(file_path):
                     'image_3': f"{url_name_game}/images/image-slot-{url_name_game}-3.jpg",
                     'image_4': f"{url_name_game}/images/image-slot-{url_name_game}-4.jpg",
                     'image_5': f"{url_name_game}/images/image-slot-{url_name_game}-5.jpg",
-                    'url_original': url  # Исходный URL
+                    'url_original': url,  # Исходный URL
+                    'name_random_mus_file': name_random_mus_file
                 }
 
                 writer.writerow(row_data)
@@ -326,8 +344,8 @@ def open_urls_and_click_button(file_path):
                 time.sleep(5)
                 # Удаление исходного видеофайла - Попытка удаления файла
                 # Предполагаем, что у вас есть переменная video_path для пути к видеофайлу
-                def add_path_to_delete_file(path, delete_list_path):
-                    with open(delete_list_path, "a") as file:  # "a" для добавления в конец файла
+                def add_path_to_delete_file(path, LIST_VIDEO_TO_DELETE):
+                    with open(LIST_VIDEO_TO_DELETE, "a") as file:  # "a" для добавления в конец файла
                         file.write(path + "\n")  # Добавление пути к файлу с новой строки
 
 
@@ -344,9 +362,8 @@ def open_urls_and_click_button(file_path):
         driver.quit()
 
     # Видаляємо старі та великі відео
-    base_path_del = "C://Gembling//Deepl_Python//Deepl_Python//"
     try:
-        delete_files_from_list(LIST_VIDEO_TO_DELETE, base_path_del)
+        delete_files_from_list(LIST_VIDEO_TO_DELETE, BASE_PATH_LIST_VIDEO_TO_DEL)
     except Exception as e:
         print(f"Произошла ошибка при удалении файлов: {e}")
 
