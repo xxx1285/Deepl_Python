@@ -1,7 +1,10 @@
 import json
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QTableWidget, QTableWidgetItem, QMessageBox, QInputDialog,
-                             QCheckBox, QIcon)
+                             QCheckBox)
 from ui.edit_profile import EditProfileDialog
 from app.profile import Profile
 from app.browser_launcher import BrowserLauncher
@@ -48,14 +51,21 @@ class ProfileManager(QWidget):
 
             # Добавление данных профиля
             self.profile_table.setItem(row, 0, QTableWidgetItem(str(idx + 1)))
-            self.profile_table.setItem(row, 1, QTableWidgetItem(profile.name))
-            self.profile_table.setItem(row, 2, QTableWidgetItem(profile.user_agent))
-            self.profile_table.setItem(row, 3, QTableWidgetItem(profile.start_url or "http://example.com"))
+            self.profile_table.setItem(row, 2, QTableWidgetItem(profile.name))
+            self.profile_table.setItem(row, 3, QTableWidgetItem(profile.country))
+            self.profile_table.setItem(row, 4, QTableWidgetItem(profile.user_agent))
+            self.profile_table.setItem(row, 5, QTableWidgetItem(profile.start_url or "http://example.com"))
+
+            # Checkboxes for selection
+            checkbox = QCheckBox()
+            self.profile_table.setCellWidget(row, 1, checkbox)
 
             # Кнопки запуска и редактирования
             launch_button = QPushButton("Launch")
+            launch_button.setFixedSize(80, 30)
             launch_button.clicked.connect(lambda checked, p=profile: self.launchBrowserWithProfile(p))
             edit_button = QPushButton("Edit")
+            edit_button.setFixedSize(80, 30)
             edit_button.clicked.connect(lambda checked, p=profile: self.editProfile(p))
 
             button_layout = QHBoxLayout()
@@ -63,7 +73,7 @@ class ProfileManager(QWidget):
             button_layout.addWidget(edit_button)
             button_widget = QWidget()
             button_widget.setLayout(button_layout)
-            self.profile_table.setCellWidget(row, 4, button_widget)
+            self.profile_table.setCellWidget(row, 6, button_widget)
 
     def addProfile(self):
         name, ok = QInputDialog.getText(self, 'Add Profile', 'Enter profile name:')
@@ -95,7 +105,8 @@ class ProfileManager(QWidget):
     def removeSelectedProfiles(self):
         selected_rows = set()
         for idx in range(self.profile_table.rowCount()):
-            if self.profile_table.item(idx, 1).checkState() == Qt.Checked:
+            checkbox = self.profile_table.cellWidget(idx, 1)
+            if checkbox and checkbox.isChecked():
                 selected_rows.add(idx)
         for row in sorted(selected_rows, reverse=True):
             del self.profiles[row]

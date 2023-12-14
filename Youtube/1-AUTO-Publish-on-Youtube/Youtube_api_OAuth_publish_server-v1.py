@@ -15,6 +15,7 @@ import asyncio
 import httpx
 import json
 from aiogram import Bot
+from aiogram.types import InputFile
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -29,7 +30,7 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.upload',
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 CSV_ALL_VIDEOS = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/csv/output_games.csv'
-GAMES_VIDEO_CATALOG = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/video/games-v1/'
+GAMES_CATALOG = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/video/games-v1'
 OAUTH_TOKEN = r'/home/vilmebel/dynamiteminergames.com/www/Youtube-API/json_key/token-v2.json'
 TELEGRAM_BOT_TOKEN = r'/home/vilmebel/dynamiteminergames.com/www/TELEGRAM-BOT/telegram_bot_tokens.json'
 # YOUTUBE_ZASTAVKA_THUMB_JPG = r'Youtube\1-AUTO-Publish-on-Youtube\test\zastavka-test.jpg'
@@ -41,9 +42,17 @@ TOKEN = tokens["telegram_bot_mypyscript018"]
 bot = Bot(token=TOKEN)
 CHANNEL_ID = '@mypyscript018'
 
-# Telegram fuction
-async def send_message(text):
+# Telegram fuction TEXT
+async def send_Telegram_message(text):
     await bot.send_message(chat_id=CHANNEL_ID, text=text)
+# Telegram fuction VIDEO and Caption
+async def send_Telegram_video(video_file, caption):
+    video = InputFile(video_file)
+    await bot.send_video(chat_id=CHANNEL_ID, video=video, caption=caption)
+
+# текущее время
+current_time = datetime.now()
+formatted_time = current_time.strftime("%Y-%m-%d %H:%M")
 
 # TAGS add new TAG from Titile
 def find_first_long_word(sentence):
@@ -243,7 +252,7 @@ def get_authenticated_service():
 
 
 # Функція для завантаження відео
-async def upload_video(youtube, video_file, title, text_game="", video_urls=None):
+async def upload_video(youtube, video_file, img_prevue_file, title, text_game="", video_urls=None):
     tag_from_name = find_first_long_word(title)
     selected_hashtags = select_hashtags()
     new_title = generate_random_title(title) + " " + tag_from_name + " " + " ".join(selected_hashtags)
@@ -283,16 +292,19 @@ async def upload_video(youtube, video_file, title, text_game="", video_urls=None
     )
 
     try:
+         # Завантажити відео
         response = insert_request.execute()
         # video_id = response['id']
         # thumbnail_file = 'path_to_your_thumbnail.jpg'  # Укажите путь к файлу миниатюры
         # upload_thumbnail(youtube, video_id, thumbnail_file)
         print(f"Video slot - {title}. Video ID: {response['id']}")
-        await send_message(f"Успішно завантажено відео: {title}")
+        
+        await send_Telegram_video(video_file, f"{title}\n\n Успішно завантажено - {formatted_time}")
+        # await send_Telegram_message(f"{title}/n Успішно завантажено {formatted_time}")
         return True
     except Exception as e:
         print(f"Помилка під час завантаження відео: {title}\n{e}")
-        await send_message(f"ERROR завантаження відео: {title}\n{e}")
+        await send_Telegram_message(f"ERROR завантаження відео: {title}\n{e}")
         return False
 
 # Головна функція
@@ -301,12 +313,13 @@ async def main():
     df = pd.read_csv(CSV_ALL_VIDEOS, delimiter=';', quotechar='"')
 
     for index, row in df.iterrows():
-        video_file = GAMES_VIDEO_CATALOG + row['alias'] + '/video/video-' + row['alias'] + '.mp4'
+        video_file = GAMES_CATALOG + "/" + row['alias'] + '/video/' + row['alias'] + '.mp4'
+        img_prevue_file = GAMES_CATALOG + "/" + row['alias'] + '/images/image-' + row['alias'] + '-0.jpg'
         title = row['title_game']
         text_game = row['text_game']
 
         # Завантаження відео
-        success = await upload_video(youtube, video_file, title, text_game, video_urls)
+        success = await upload_video(youtube, video_file, img_prevue_file, title, text_game, video_urls)
 
         if success:
             # Видалення рядка після успішної публікації

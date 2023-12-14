@@ -22,6 +22,7 @@ from app.app_video_screenRecorder_v3 import VideoRecorder
 from app.app_audioText_on_audioMUS_v1 import audioTextSpeach_on_audioMusic
 from app.app_delete_old_BIG_video import delete_files_from_list
 from app.app_perefraziruem_text_NLTK_SpaCy import paraphrase_with_spacy
+# from app.app_video_add_video_v1 import get_random_video_from_directory, cut_7_second_clip, merge_videos
 
 MY_SITE_NAME = "1win1win.com"
 base_path_del = os.path.dirname(os.path.abspath(__file__))
@@ -315,6 +316,26 @@ def open_urls_and_click_button(file_path):
                 ffmpeg_cmd = f'ffmpeg -i {video_path_file} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental {final_video_path}'
                 # Запуск FFmpeg
                 subprocess.run(ffmpeg_cmd, shell=True, check=True)
+
+
+                # ОБЬЕДИНЯЕМ ВИДЕО
+                # # Путь для сохранения временного клипа
+                # temp_clip_path = f"{folders['folder_path']}/video/{url_name_game}-3333.mp4"
+                # final_output_video = f"{folders['folder_path']}/video/{url_name_game}-33331.mp4"
+                # # Путь к каталогу с дополнительными видео
+                # video_directory = 'D://Gembling//Deepl_Python//Deepl_Python//SETTINGS//video-emotsiya'
+                # # Путь для сохранения итогового видео
+                # final_output_path = 'path/to/final_output.mp4'
+
+                # random_video_path = get_random_video_from_directory(video_directory)
+                # if random_video_path:
+                #     cut_7_second_clip(random_video_path, temp_clip_path)
+                #     merge_videos(final_video_path, temp_clip_path, final_output_video)
+
+                #     # Удаление временного файла
+                #     os.remove(temp_clip_path)
+                # else:
+                #     print("Не найдено видео для добавления.")
 
                 # Запись данных в CSV
                 row_data = {

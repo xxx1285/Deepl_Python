@@ -1,9 +1,10 @@
-from gtts import gTTS
+from TTS.api import TTS
 from pydub import AudioSegment
 import io
 import os
 import random
 
+tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
 
 
 def audioTextSpeach_on_audioMusic(text_in_audio, lang='en', audio_path=""):
@@ -17,22 +18,25 @@ def audioTextSpeach_on_audioMusic(text_in_audio, lang='en', audio_path=""):
     bg_music_audio = AudioSegment.from_mp3(random_bg_music_path)[13000:]
 
     if text_in_audio and len(text_in_audio) >= 100:
-        # Создание аудио из текста
-        tts = gTTS(text_in_audio, lang=lang, tld='ca', lang_check=False)
-        # Language code --- https://gtts.readthedocs.io/en/latest/module.html
-        audio_fp = io.BytesIO()
-        tts.write_to_fp(audio_fp)
-        audio_fp.seek(0)
-        speech_audio = AudioSegment.from_file(audio_fp, format="mp3")
+        speaker_wav = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\audio\714085__strangehorizon__zephy_like_a_fly.wav"
+        text_in_audio_result = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\audio\result_del.wav"
+        tts.tts_to_file(text=text_in_audio,
+                file_path=text_in_audio_result,
+                speaker_wav=speaker_wav,
+                language="en")
+
+        speech_audio = AudioSegment.from_file(text_in_audio_result, format="wav")
 
         # Уменьшение громкости фоновой музыки
-        bg_music_audio = bg_music_audio - 15  # Уменьшаем громкость на 10 дБ
+        bg_music_audio = bg_music_audio - 22  # Уменьшаем громкость на 10 дБ
 
         # Обрезка фоновой музыки до длительности речи
         bg_music_audio = bg_music_audio[:len(speech_audio)]
 
         # Наложение речи на фоновую музыку
         combined_audio = speech_audio.overlay(bg_music_audio)
+        # Удаляем голос по тексту WAV
+        os.remove(text_in_audio_result)
     else:
         combined_audio = bg_music_audio
 

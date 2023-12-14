@@ -18,24 +18,34 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
                                         ElementClickInterceptedException, InvalidArgumentException
 
 from threading import Thread
+from llama_cpp import Llama
+
 from app.app_video_screenRecorder_v3 import VideoRecorder
 from app.app_audioText_on_audioMUS_v1 import audioTextSpeach_on_audioMusic
 from app.app_delete_old_BIG_video import delete_files_from_list
 from app.app_perefraziruem_text_NLTK_SpaCy import paraphrase_with_spacy
+# from app.app_video_add_video_v1 import get_random_video_from_directory, cut_7_second_clip, merge_videos
+from app.app_video_ON_video_v1 import app_video_random_video_emotsiya, app_video_resize, app_video_merge_videos
+from app.app_video_ON_video_bannarNiz_v1 import app_video_merge_banner_niz
+from app.app_Llama_v1 import app_llama
 
 MY_SITE_NAME = "1win1win.com"
+base_path_del = os.path.dirname(os.path.abspath(__file__))
 
 # URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
-URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-games-02-12-2023.txt'
-OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games3.csv"
-
-
-BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v2/"
+URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-games-08-12-2023.txt'
+OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games5.csv"
 BG_MUS_NO_AUTHOR = "D:\\Gembling\\Deepl_Python\\Deepl_Python\\SETTINGS\\Music-no-author"
-
 LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\video_to_delete.txt"
 BASE_PATH_LIST_VIDEO_TO_DEL = "D://Gembling//Deepl_Python//Deepl_Python//"
+CATALOG_MINI_VIDEO_EMOTSIYA = r"SETTINGS\video-emotsiya"
+BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v5/"
+BANNER_VIDEO_VNIZU = r'D:\Gembling\Deepl_Python\Deepl_Python\VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\need\IMG_5029.MP4'
 
+
+# MODEL_LLAMA_PATH = "D://Gembling//Deepl_Python//Deepl_Python//llama//TheBloke//1//llama-2-7b-chat.Q4_K_M.gguf"
+MODEL_LLAMA_PATH = "D://Gembling//Deepl_Python//Deepl_Python//llama//TheBloke//llama-2-7b-chat.Q5_K_S.gguf"
+model_Llama = Llama(model_path=MODEL_LLAMA_PATH, n_ctx=2048)
 
 
 def create_folders(url_name_game):
@@ -143,13 +153,13 @@ def open_urls_and_click_button(file_path):
         urls = [line.strip() for line in file.readlines()]
 
     # Создаем и открываем CSV файл для записи
-    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'text_game_NLTK', 'text_game_NLTK_1000_and_nachalo', 'iframe_url', 
+    fieldnames = ['#', 'title_game', 'alias', 'text_game', 'text_game_Llama', 'text_game_Llama_1000_and_nachalo', 'iframe_url', 
                 'video_src', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original', 
                 'name_random_mus_file']
-    with open(OUTPUT_GAMES_CSV, mode='a', newline='', encoding='utf-8') as csv_file:
+    with open(OUTPUT_GAMES_CSV, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         # Эту строку нужно закомментировать - это заголовки которые при "a" не добавляются
-        # writer.writeheader()
+        writer.writeheader()
         url_counter = 1
 
         for url in urls:
@@ -187,12 +197,23 @@ def open_urls_and_click_button(file_path):
                 except (NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException):
                     pass
                 
-                # Изминенный текст с использованием NLTK
-                text_game_NLTK = paraphrase_with_spacy(text_game)
-                # Приставка под текст и аудио где в начале ключевое слово
-                pristavka_nachalo_text = title_game + " is available on the " + MY_SITE_NAME + " website\n"
+                #############################################################################################
+                #  Llama Генератс
+                #############################################################################################
+                def check_and_update_text_game_Llama(model_Llama, text_game):
+                    for _ in range(3):
+                        text_game_Llama = app_llama(model_Llama, text_game)
+                        if len(text_game_Llama) > 150:
+                            break
+                    else:
+                        text_game_NLTK = paraphrase_with_spacy(text_game)
+                        text_game_Llama = text_game_NLTK
+                    return text_game_Llama
+                
+                text_game_Llama = check_and_update_text_game_Llama(model_Llama, text_game)
 
-                text_game_NLTK_1000_and_nachalo = pristavka_nachalo_text + text_game_NLTK[:1000]
+                text_game_Llama_1000_and_nachalo = title_game + " on " + MY_SITE_NAME + "\n" + text_game_Llama[:1000]
+                #############################################################################################
 
                 # Инициализация каталогов
                 folders = create_folders(url_name_game)
@@ -219,21 +240,6 @@ def open_urls_and_click_button(file_path):
                 #################################################################
                 #   Закрываем баннер и приступаем к игре
                 #################################################################
-                # # Добавление визуального маркера клика на страницу с помощью JavaScript
-                # script = f"""
-                # var body = document.querySelector('body');
-                # var clickIndicator = document.createElement('div');
-                # clickIndicator.style.position = 'absolute';
-                # clickIndicator.style.left = '270px';
-                # clickIndicator.style.top = '650px';
-                # clickIndicator.style.width = '5px';
-                # clickIndicator.style.height = '5px';
-                # clickIndicator.style.backgroundColor = 'green';
-                # clickIndicator.style.zIndex = '10000';
-                # body.appendChild(clickIndicator);
-                # """
-                # driver.execute_script(script)
-
                 x_to_click = 270
                 y_to_click = 650
 
@@ -262,13 +268,6 @@ def open_urls_and_click_button(file_path):
                 x_to_play = 270
                 y_to_play = 750
 
-                # Scrinshot settings - Получаем размеры и положение окна браузера
-                # window_rect = driver.get_window_rect()
-                # x = window_rect['x']
-                # y = window_rect['y']
-                # width = window_rect['width']
-                # height = window_rect['height']
-
                 # VIDEO REC
                 video_path = folders['video_path']
                 video_path_file = f"{video_path}/{url_name_game}-777del.mp4"
@@ -292,28 +291,43 @@ def open_urls_and_click_button(file_path):
 
                 time.sleep(1)
                 video_thread.join()
-
+                
+                ##################################################################
+                # Banner и емоция человека
+                ##################################################################
+                video_path_file_s_bannerom = f"{video_path}/{url_name_game}-banner-777del2.mp4"
+                app_video_merge_banner_niz(video_path_file, BANNER_VIDEO_VNIZU, video_path_file_s_bannerom)
+                time.sleep(3)
+                # Путь к директории с видео
+                random_video_emotsiya = app_video_random_video_emotsiya(CATALOG_MINI_VIDEO_EMOTSIYA)
+                # Путь к уменьшенному видео
+                resized_video_emotsiya = f"{video_path}/emotsiya-777del-resize.mp4"
+                app_video_resize(random_video_emotsiya, resized_video_emotsiya, 200, 200)
+                # Путь к основному видео и итоговому видео
+                video_path_file_emotsiya = f"{video_path}/{url_name_game}-777del2.mp4"
+                # resized_video_emotsiya = r'D:\Gembling\Deepl_Python\Deepl_Python\VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\need\IMG_5029.MP4'
+                app_video_merge_videos(video_path_file_s_bannerom, resized_video_emotsiya, video_path_file_emotsiya)
+                time.sleep(4)
                 #################################################################
                 # Аудио с текста и накладываем музыку
                 #################################################################
                 audio_path = folders['audio_path']
-                name_random_mus_file = audioTextSpeach_on_audioMusic(text_game_NLTK_1000_and_nachalo, lang='en', audio_path=audio_path)
-
-
+                name_random_mus_file = audioTextSpeach_on_audioMusic(text_game_Llama_1000_and_nachalo, lang='en', audio_path=audio_path)
                 # Путь к аудиофайлу, который был создан
                 audio_file = f"{audio_path}output.mp3"
                 final_video_path = f"{folders['folder_path']}/video/{url_name_game}.mp4"
-                # Объединение видео и аудио
-                # video_clip = VideoFileClip(video_path)
-                # audio_clip = AudioFileClip(audio_file)
-                # final_clip = video_clip.set_audio(audio_clip)
-                # final_clip.write_videofile(final_video_path, codec='libx264', audio_codec='aac')
-
-                # Команда для FFmpeg
-                # ffmpeg_cmd = f'ffmpeg -i {video_path} -i {audio_file} -c:v copy -c:a aac -strict experimental {final_video_path}'
-                ffmpeg_cmd = f'ffmpeg -i {video_path_file} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental {final_video_path}'
+                ##################################################################
+                #  Объединение видео и аудио
+                ##################################################################
+                # ffmpeg_cmd = f'ffmpeg -i {video_path_file_emotsiya} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental {final_video_path}'
+                # Если нужно обрезать по видео
+                # ffmpeg_cmd = f'ffmpeg -i {video_path_file_emotsiya} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental -shortest {final_video_path}'
+                # ffmpeg_cmd = f'ffmpeg -i {video_path_file_emotsiya} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict -2 -shortest {final_video_path}'
+                # обрезаем по 60 секунд
+                ffmpeg_cmd = f'ffmpeg -i {video_path_file_emotsiya} -i {audio_file} -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -strict experimental -t 59 {final_video_path}'
                 # Запуск FFmpeg
                 subprocess.run(ffmpeg_cmd, shell=True, check=True)
+
 
                 # Запись данных в CSV
                 row_data = {
@@ -321,8 +335,8 @@ def open_urls_and_click_button(file_path):
                     'title_game': title_game,
                     'alias': url_name_game,
                     'text_game': text_game,
-                    'text_game_NLTK': text_game_NLTK,
-                    'text_game_NLTK_1000_and_nachalo': text_game_NLTK_1000_and_nachalo,
+                    'text_game_Llama': text_game_Llama,
+                    'text_game_Llama_1000_and_nachalo': text_game_Llama_1000_and_nachalo,
                     'iframe_url': iframe_src,
                     'video_src': f"{url_name_game}/video/{url_name_game}.mp4",  # Путь к видеофайлу final_video_path
                     # Пути к изображениям (пример)
@@ -349,6 +363,10 @@ def open_urls_and_click_button(file_path):
 
 
                 add_path_to_delete_file(video_path_file, LIST_VIDEO_TO_DELETE)
+                add_path_to_delete_file(resized_video_emotsiya, LIST_VIDEO_TO_DELETE)
+                add_path_to_delete_file(video_path_file_emotsiya, LIST_VIDEO_TO_DELETE)
+                add_path_to_delete_file(video_path_file_s_bannerom, LIST_VIDEO_TO_DELETE)
+
 
                 print(title_game)
 

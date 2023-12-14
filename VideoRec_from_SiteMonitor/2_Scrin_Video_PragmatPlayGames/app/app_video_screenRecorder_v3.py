@@ -37,10 +37,11 @@ def VideoRecorder(filename, duration, fps=24.0, region=None, top_text=""):
             font = cv2.FONT_HERSHEY_SIMPLEX
 
             # Добавление ВНИЗУ черной подложки с отступами
-            cv2.rectangle(frame, (7, region['height'] - 290), (region['width'] - 7, region['height'] - 140), (0, 0, 255), -1)
+            cv2.rectangle(frame, (7, region['height'] - 290), (region['width'] - 7, region['height'] - 130), (0, 0, 255), -1)
             # Добавление ВНИЗУ текста на подложку 
             text = "FIRST DEPOSIT BONUS +500%"
             text_size = cv2.getTextSize(text, font, 1, 2)[0]
+            # Вычисляем координаты X для центрирования текста
             text_x = (frame.shape[1] - text_size[0]) // 2
             text_y = region['height'] - 230  # Регулируйте координаты Y для центрирования текста
             cv2.putText(frame, text, (text_x, text_y), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
@@ -48,8 +49,14 @@ def VideoRecorder(filename, duration, fps=24.0, region=None, top_text=""):
             sub_text = "1win1win.com"
             sub_text_size = cv2.getTextSize(sub_text, font, 1.5, 2)[0]
             sub_text_x = (frame.shape[1] - sub_text_size[0]) // 2
-            sub_text_y = region['height'] - 170  # Регулируйте координаты Y для центрирования текста
+            sub_text_y = region['height'] - 180  # Регулируйте координаты Y для центрирования текста
             cv2.putText(frame, sub_text, (sub_text_x, sub_text_y), font, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
+            # Дополнительный текст ВНИЗУ 
+            sub_text = "Telegram: @BONUS100FD"
+            sub_text_size = cv2.getTextSize(sub_text, font, 0.9, 2)[0]
+            sub_text_x = (frame.shape[1] - sub_text_size[0]) // 2
+            sub_text_y = region['height'] - 140  # Регулируйте координаты Y для центрирования текста
+            cv2.putText(frame, sub_text, (sub_text_x, sub_text_y), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
 
             # Добавление водяных знаков после 5-й секунды
             if time.perf_counter() - start_time > 5:
@@ -73,11 +80,20 @@ def VideoRecorder(filename, duration, fps=24.0, region=None, top_text=""):
                 cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2), font, 0.9, (0, 0, 0), 2, cv2.LINE_AA)
 
                 # Желтая подложка для текста
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 148), font, 0.7, (0, 255, 255), 9, cv2.LINE_AA)
+                # cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 148), font, 0.7, (0, 255, 255), 9, cv2.LINE_AA)
+                # # Красный текст поверх подложки
+                # cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 147), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+
+                # Для правильного центрирования подложки и текста по ширине кадра, вы должны использовать размеры текста
+                text_size = cv2.getTextSize(top_text, font, 0.7, 2)[0]
+
+                # Вычисляем координаты X для центрирования текста
+                text_x = (frame.shape[1] - text_size[0]) // 2
+
+                # Желтая подложка для текста
+                cv2.putText(frame, top_text, (text_x, frame.shape[0] // 2 + 148), font, 0.7, (0, 255, 255), 9, cv2.LINE_AA)
                 # Красный текст поверх подложки
-                cv2.putText(frame, top_text, (frame.shape[1] // 2 - len(top_text) * 5, frame.shape[0] // 2 + 147), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
-
-
+                cv2.putText(frame, top_text, (text_x, frame.shape[0] // 2 + 147), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
 
             out.write(frame)
             time.sleep(frame_time)
