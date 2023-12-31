@@ -51,20 +51,3 @@ def urls_from_cid(baza_cids):
 
 cid = get_cid_from_coordinates(coordinate, keyword, api_key)
 print(cid)
-
-
-
-# https://maps.googleapis.com/maps/api/place/nearbysearch/json
-#   ?keyword=cafe
-#   &location=50.363814,30.938732
-#   &radius=1500
-#   &key=AIzaSyAGU6x_TcuG8zY6ABGf0yoo1PdFLttW1iQ
-
-# import urllib.parse
-
-# original_str = "кухні на замовлення бориспіль"
-# encoded_str = urllib.parse.quote(original_str.encode('utf-8'))
- 
-# print(encoded_str)
-
-
