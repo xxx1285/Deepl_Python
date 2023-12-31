@@ -27,15 +27,16 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 # Налаштування OAuth 2.0
-CLIENT_SECRETS_FILE = r"D:\Gembling\Deepl_Python\Deepl_Python\Youtube\1-AUTO-Publish-on-Youtube\json-key\client_secret_75919922252-md40qq7of31jc7jvlsbo2e8mrtp96ud1.apps.googleusercontent.com.json"
+# CLIENT_SECRETS_FILE = r"D:\Gembling\Deepl_Python\Deepl_Python\Youtube\1-AUTO-Publish-on-Youtube\json-key\client_secret_75919922252-md40qq7of31jc7jvlsbo2e8mrtp96ud1.apps.googleusercontent.com.json"
+CLIENT_SECRETS_FILE = r"D:\Gembling\Deepl_Python\Deepl_Python\Youtube\1-AUTO-Publish-on-Youtube\json-key\1win1w_gmail\v2_client_secret_156794887415-qg454247e397eduh027gc8ssl8a8pban.apps.googleusercontent.com.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.upload',
           'https://www.googleapis.com/auth/youtube.readonly',
           'https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
-CSV_ALL_VIDEOS = r'Youtube\1-AUTO-Publish-on-Youtube\input\output_games7.csv'
-GAMES_CATALOG = r'VideoRec_from_SiteMonitor\output_PragmaticGames\games-v7'
-OAUTH_TOKEN = r'Youtube\1-AUTO-Publish-on-Youtube\token-v2.json'
+CSV_ALL_VIDEOS = r'Youtube\1-AUTO-Publish-on-Youtube\input\output_games4.csv'
+GAMES_CATALOG = r'VideoRec_from_SiteMonitor\output_PragmaticGames\games-v4'
+OAUTH_TOKEN = r'Youtube\1-AUTO-Publish-on-Youtube\token-v3-2.json'
 TELEGRAM_BOT_TOKEN = r'SETTINGS\telegram_bot_tokens.json'
 POPULAR_HASHTAGS = r'Youtube\1-AUTO-Publish-on-Youtube\popular_hashtags\popular_hashtags.txt'
 
@@ -233,7 +234,7 @@ def get_authenticated_service():
     # Отримання інформації про канал
     channel_request = youtube.channels().list(
         part="snippet,contentDetails",
-        id="UCIby7wMrI7gNhZlXzoiNbMQ"
+        id="UCwVN6GTaOfUzfiUuYA_nZlw"
     )
     channel_response = channel_request.execute()
 
@@ -287,22 +288,20 @@ async def upload_video(youtube, video_file, img_prevue_file, title, text_game=""
     select_random_tags_from_txt = select_random_tags_from_txt_file(POPULAR_HASHTAGS)
     tags_from_title_list = tags_from_title(new_title)
 
-    new_tag = tags_from_title_list + selected_hashtags + select_random_tags_from_txt
+    new_tag = selected_hashtags
 
 
     body = {
         'snippet': {
             'title': new_title,
             'description': new_description,
-            # "tags": ["surfing", "Santa Cruz"],
             'tags': new_tag,
             'categoryId': '22',
             'defaultLanguage': 'en',
             'defaultAudioLanguage': 'en'
         },
         'status': {
-            # 'privacyStatus': 'public',
-            'privacyStatus': 'unlisted',
+            'privacyStatus': 'public',
             'selfDeclaredMadeForKids': False,
         }
     }

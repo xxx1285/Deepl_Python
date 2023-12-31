@@ -35,13 +35,13 @@ base_path_del = os.path.dirname(os.path.abspath(__file__))
 
 # URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
 URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-games-08-12-2023.txt'
-OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games7.csv"
+OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games9.csv"
 
 
-BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v7/"
+BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v9/"
 BG_MUS_NO_AUTHOR = "D:\\Gembling\\Deepl_Python\\Deepl_Python\\SETTINGS\\Music-no-author"
 
-LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\list_video_audio_to_delete.txt"
+LIST_VIDEO_TO_DELETE = r"VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\output\list_video_audio_to_delete-9.txt"
 BASE_PATH_LIST_VIDEO_TO_DEL = "D://Gembling//Deepl_Python//Deepl_Python//"
 
 CATALOG_MINI_VIDEO_EMOTSIYA = r"SETTINGS\video-emotsiya"
@@ -51,7 +51,7 @@ IMAGES_PATH_NAKLADKA_NA_PREVIU = "D://Gembling//Canva//Mobile_and_win_Jackpot//s
 MODEL_LLAMA_PATH = "D://Gembling//Deepl_Python//Deepl_Python//llama//TheBloke//llama-2-7b-chat.Q5_K_S.gguf"
 model_Llama = Llama(model_path=MODEL_LLAMA_PATH, n_ctx=2048)
 
-BANNER_VIDEO_VNIZU = r'D:\Gembling\Deepl_Python\Deepl_Python\VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\need\video-banner-down-2.MP4'
+BANNER_VIDEO_VNIZU = r'D:\Gembling\Deepl_Python\Deepl_Python\VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\need\video-banner-down-4.MP4'
 
 # Замеряем мремя
 start_time = time.time()
@@ -167,10 +167,10 @@ def open_urls_and_click_button(file_path):
     fieldnames = ['#', 'title_game', 'alias', 'text_game', 'text_game_Llama', 'text_game_Llama_1000_and_nachalo', 'iframe_url', 
                 'video_src', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'url_original', 
                 'name_random_mus_file']
-    with open(OUTPUT_GAMES_CSV, mode='a', newline='', encoding='utf-8') as csv_file:
+    with open(OUTPUT_GAMES_CSV, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         # Эту строку нужно закомментировать - это заголовки которые при "a" не добавляются
-        # writer.writeheader()
+        writer.writeheader()
         url_counter = 1
 
         for url in urls:

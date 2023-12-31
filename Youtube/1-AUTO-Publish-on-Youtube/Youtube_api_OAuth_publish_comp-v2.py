@@ -10,7 +10,8 @@
 # Права доступа к скрипту должны быть 750 или rwxr-x—.
 # Права доступа к каталогу, в котором размещён скрипт, должны быть 750 или rwxr-x—.
 
-import datetime
+from datetime import datetime, timedelta
+import pytz  # Библиотека для работы с часовыми поясами
 import pandas as pd
 import os
 import random
@@ -27,15 +28,15 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 # Налаштування OAuth 2.0
-CLIENT_SECRETS_FILE = r"D:\Gembling\Deepl_Python\Deepl_Python\Youtube\1-AUTO-Publish-on-Youtube\json-key\client_secret_75919922252-md40qq7of31jc7jvlsbo2e8mrtp96ud1.apps.googleusercontent.com.json"
+CLIENT_SECRETS_FILE = r"D:\Gembling\Deepl_Python\Deepl_Python\Youtube\1-AUTO-Publish-on-Youtube\json-key\1win1w_gmail\v2_client_secret_156794887415-qg454247e397eduh027gc8ssl8a8pban.apps.googleusercontent.com.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.upload',
           'https://www.googleapis.com/auth/youtube.readonly',
           'https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
-CSV_ALL_VIDEOS = r'Youtube\1-AUTO-Publish-on-Youtube\input\output_games7.csv'
-GAMES_CATALOG = r'VideoRec_from_SiteMonitor\output_PragmaticGames\games-v7'
-OAUTH_TOKEN = r'Youtube\1-AUTO-Publish-on-Youtube\token-v2.json'
+CSV_ALL_VIDEOS = r'Youtube\1-AUTO-Publish-on-Youtube\input\output_games8.csv'
+GAMES_CATALOG = r'VideoRec_from_SiteMonitor\output_PragmaticGames\games-v8'
+OAUTH_TOKEN = r'Youtube\1-AUTO-Publish-on-Youtube\token-v3-2.json'
 TELEGRAM_BOT_TOKEN = r'SETTINGS\telegram_bot_tokens.json'
 POPULAR_HASHTAGS = r'Youtube\1-AUTO-Publish-on-Youtube\popular_hashtags\popular_hashtags.txt'
 
@@ -59,9 +60,18 @@ async def send_Telegram_video(video_file, caption):
         await bot.send_message(chat_id=CHANNEL_ID, text=f"Error: File does not exist at {video_file}")
 
 
-# текущее время
-current_time = datetime.datetime.now()
+######################################################################################
+# TIME
+######################################################################################
+current_time = datetime.now()
 formatted_time = current_time.strftime("%Y-%m-%d %H:%M")
+# Установка временной зоны, например, UTC
+timezone = pytz.timezone('UTC')
+# Текущее время + 1 день + 2 часа + 15 минут  (days=1, hours=2, minutes=15)
+publish_date = datetime.now(timezone) + timedelta(minutes=15)
+# Установка даты и времени публикации в формате ISO 8601
+publish_at = publish_date.isoformat()
+
 
 ###########################################################################################
 # HASHTAGS
@@ -87,9 +97,9 @@ def select_4_hashtags():
         "CasinoRoyale", "slot machine jackpot", "slot lady", "slot queen", "akafuji slot", "buffalo gold slot machine", "slot cats",
         "slot videos", "slot machines"
     ]
-    return random.sample(hashtags, 4)
+    return random.sample(hashtags, 3)
 
-def select_random_tags_from_txt_file(filename, number_of_lines=4):
+def select_random_tags_from_txt_file(filename, number_of_lines=2):
     # выбираем хештеги с файла TXT популярных тегов
     try:
         with open(filename, 'r') as file:
@@ -107,11 +117,13 @@ def select_random_tags_from_txt_file(filename, number_of_lines=4):
     except Exception as e:
         raise Exception(f"Произошла ошибка: {e}")
     
-def tags_from_title(title):
-    # создаем хештеги с Title разбивая на фразы
-    words = title.split()
+def tags_from_title(title, new_title):
+    # создаем хештеги с new_title разбивая на фразы - Добавляем title в начало списка
+    words = new_title.split()
     titles = [' '.join(words[:i]) for i in range(len(words), 0, -1) if len(words[i-1]) > 3]
-    return titles
+    hashtags = titles[:4]
+    hashtags.insert(0, title)
+    return hashtags
 
 ####################################################################################
 ####################################################################################
@@ -233,7 +245,7 @@ def get_authenticated_service():
     # Отримання інформації про канал
     channel_request = youtube.channels().list(
         part="snippet,contentDetails",
-        id="UCIby7wMrI7gNhZlXzoiNbMQ"
+        id="UCwVN6GTaOfUzfiUuYA_nZlw"
     )
     channel_response = channel_request.execute()
 
@@ -241,31 +253,48 @@ def get_authenticated_service():
         channel_name = channel_response['items'][0]['snippet']['title']
         print(f"Авторизовано на каналі: {channel_name}")
 
-        # Отримання ID основного плейлисту каналу
-        playlist_id = channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+        # Получение ID основного плейлиста канала
+        if 'uploads' in channel_response['items'][0]['contentDetails']['relatedPlaylists']:
+            playlist_id = channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-        # Отримання відео з плейлисту
-        video_urls = []
-        playlist_request = youtube.playlistItems().list(
-            playlistId=playlist_id,
-            part="snippet",
-            maxResults=7
-        )
+            # Получение видео из плейлиста
+            video_urls = []
+            playlist_request = youtube.playlistItems().list(
+                playlistId=playlist_id,
+                part="snippet",
+                maxResults=7
+            )
 
-        while playlist_request:
-            playlist_response = playlist_request.execute()
+            while playlist_request:
+                try:
+                    playlist_response = playlist_request.execute()
 
-            for item in playlist_response['items']:
-                video_id = item['snippet']['resourceId']['videoId']
-                video_url = f"https://www.youtube.com/watch?v={video_id}"
-                video_urls.append(video_url)
+                    for item in playlist_response['items']:
+                        video_id = item['snippet']['resourceId']['videoId']
+                        # Проверяем статус каждого видео
+                        video_request = youtube.videos().list(
+                            part="status",
+                            id=video_id
+                        )
+                        video_response = video_request.execute()
 
-            playlist_request = youtube.playlistItems().list_next(playlist_request, playlist_response)
+                        # Проверяем, доступно ли видео для просмотра
+                        if video_response['items']:
+                            if video_response['items'][0]['status']['privacyStatus'] == 'public':
+                                video_url = f"https://www.youtube.com/watch?v={video_id}"
+                                video_urls.append(video_url)
 
-        # Тут video_urls містить список URL-адрес відео
-        print(f"Знайдено {len(video_urls)} відео на каналі.")
+                    playlist_request = youtube.playlistItems().list_next(playlist_request, playlist_response)
+                except Exception as e:
+                    print(f"Произошла ошибка при получении данных плейлиста: {e}")
+                    break
+
+            # Здесь video_urls содержит список URL-адресов видео
+            print(f"Найдено {len(video_urls)} видео на канале.")
+        else:
+            print("У канала нет загруженных видео.")
     else:
-        print("Інформація про канал не знайдена.")
+        print("Информация о канале не найдена.")
 
     return youtube, video_urls
 
@@ -278,35 +307,34 @@ async def upload_video(youtube, video_file, img_prevue_file, title, text_game=""
     additional_description = ""
     if video_urls:
         additional_description = create_video_list_string(video_urls)
-    new_description = (new_title + " " + convert_title_with_Tags(title) + "\n\n\n" + truncate_to_last_word(text_game, 400) + "\nPlay slot " + title + " 1win1win.com\n\n" +
+    new_description = (new_title + " " + convert_title_with_Tags(title) + "\n\n\n" + truncate_to_last_word(text_game, 400) + "\nPlay slot " + title + " 🔗 1win1win.com\n\n" +
                     additional_description)
     print(new_description)
     
     # теги без решетки в конце
     selected_hashtags = select_4_hashtags()
     select_random_tags_from_txt = select_random_tags_from_txt_file(POPULAR_HASHTAGS)
-    tags_from_title_list = tags_from_title(new_title)
+    tags_from_title_list = tags_from_title(title, new_title)
 
     new_tag = tags_from_title_list + selected_hashtags + select_random_tags_from_txt
 
-
+    # "tags": ["surfing", "Santa Cruz"],
     body = {
         'snippet': {
             'title': new_title,
             'description': new_description,
-            # "tags": ["surfing", "Santa Cruz"],
             'tags': new_tag,
             'categoryId': '22',
             'defaultLanguage': 'en',
             'defaultAudioLanguage': 'en'
         },
         'status': {
-            # 'privacyStatus': 'public',
-            'privacyStatus': 'unlisted',
+            'privacyStatus': 'private',
             'selfDeclaredMadeForKids': False,
+            'publishAt': publish_at
         }
     }
-
+    # 'privacyStatus': 'unlisted', 'privacyStatus': 'public'
     # Виклик API для завантаження відео
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
@@ -355,7 +383,9 @@ async def main():
             df.drop(index, inplace=True)
         else:
             print(f"Помилка під час завантаження відео: {title}")
-        break  # Залиште цей рядок для публікації лише одного відео
+
+        # Залиште цей рядок для публікації лише одного відео
+        break
 
     # Збереження оновленого CSV файлу
     df.to_csv(CSV_ALL_VIDEOS, sep=';', quotechar='"', index=False)
