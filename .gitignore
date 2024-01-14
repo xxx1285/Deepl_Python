@@ -3,6 +3,7 @@
 /all_images/*
 /bazaBacklinks/*
 /__pycache__/*
+/httpcache/*
 __pycache__
 *.webp
 *.jpg
@@ -28,3 +29,6 @@ del_*
 llama-main/
 llama/
 Webdriver_Chrome/
+scrapy/*
+/.scrapy/*
+/.scrapy/

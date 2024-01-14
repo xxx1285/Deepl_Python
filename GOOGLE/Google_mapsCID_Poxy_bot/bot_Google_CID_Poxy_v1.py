@@ -81,7 +81,13 @@ def open_urls_and_click_button():
             #     driver.get("https://ifconfig.me/")
             # except TimeoutException:
             #     print("Страница не загрузилась за 30 секунд")
-
+                
+            # driver.get("https://google.com/")
+            # driver.get("https://ifconfig.me/")
+            # driver.get("https://www.whatismybrowser.com/")
+            # driver.get("https://browserleaks.com/webrtc")
+            # driver.get("https://www.browserscan.net/webrtc")
+            # driver.get("https://browserleaks.com/")
             try:
                 driver.get("https://2ip.ua/ru/")
             except TimeoutException:

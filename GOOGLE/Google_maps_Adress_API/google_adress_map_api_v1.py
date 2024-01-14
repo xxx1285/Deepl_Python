@@ -71,14 +71,18 @@ with open(input_file, 'r', encoding='utf-8') as file:
 #                 })
 #         num += 1
 
+new_url = "https://www.google.com/maps/dir//" + urllib.parse.quote(start_adress) + "/@" + str(start_adress_coords['lat']) + "," + str(start_adress_coords['lng']) + "0?entry=ttu"
+print(new_url)
+
 
 # TXT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-with open(output_file_txt, 'w', encoding='utf-8') as file:
-    for end_adress in lines_data:
-        end_adress_coords = gmaps.geocode(end_adress)[0]['geometry']['location']
+# with open(output_file_txt, 'w', encoding='utf-8') as file:
+#     for end_adress in lines_data:
+#         end_adress_coords = gmaps.geocode(end_adress)[0]['geometry']['location']
 
-        new_url = "https://www.google.com/maps/dir/" + urllib.parse.quote(end_adress) + "/" + urllib.parse.quote(start_adress) + "/@" + str(end_adress_coords['lat']) + "," + str(end_adress_coords['lng']) + "," + str(start_adress_coords['lat']) + "," + str(start_adress_coords['lng']) + "0?entry=ttu"
+#         new_url = "https://www.google.com/maps/dir/" + urllib.parse.quote(end_adress) + "/" + urllib.parse.quote(start_adress) + "/@" + str(end_adress_coords['lat']) + "," + str(end_adress_coords['lng']) + "," + str(start_adress_coords['lat']) + "," + str(start_adress_coords['lng']) + "0?entry=ttu"
+#         new_url = "https://www.google.com/maps/dir/" + urllib.parse.quote(end_adress) + "//@" + str(end_adress_coords['lat']) + "," + str(end_adress_coords['lng']) + ",12z?entry=ttu"
 
-        file.write(new_url + '\n')
+#         file.write(new_url + '\n')
 
-print("All GOOD")
+# print("All GOOD")
