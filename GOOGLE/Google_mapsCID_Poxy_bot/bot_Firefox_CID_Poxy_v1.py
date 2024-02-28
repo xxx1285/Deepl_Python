@@ -23,7 +23,9 @@ from app.app_user_agent_Firefox_random import get_firefox_emulation_settings
 
 
 PROXY = "127.0.0.1:3128"  # IP:PORT или "HOST:PORT" вашего прокси-сервера
-URLS_ADRESS = r'GOOGLE\Google_mapsCID_Poxy_bot\input\output_result_CIT_URLs_Dubai_TEST_v1.txt'
+# URLS_ADRESS = r'GOOGLE\Google_mapsCID_Poxy_bot\input\output_result_CIT_URLs_only_borispol_Freya_v1.txt'
+URLS_ADRESS = r'GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs_Borisp_InstdivFreyameb_16-01-2024.txt'
+# URLS_ADRESS = r'GOOGLE\Google_mapsCID_Poxy_bot\input\output_result_CIT_URLs_Dubai_TEST_v1.txt'
 FIREFOX_DRIVER_PATH = r"D:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Mozilla\geckodriver-v0.34.0-win64\geckodriver.exe"
 
 # URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
@@ -134,13 +136,16 @@ def main():
             try:
                 driver.get(address_CID)
                 try:
-                    element1 = WebDriverWait(driver, 60).until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="https://www.priveatelier.ae/"]'))
-                    )
                     # element1 = WebDriverWait(driver, 60).until(
-                    #     EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="https://instadivan.com/"]'))
+                    #     EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="https://freyamebel.com/"]'))
                     # )
-                    time.sleep(2)
+                    # element1 = WebDriverWait(driver, 60).until(
+                    #     EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="https://www.priveatelier.ae/"]'))
+                    # )
+                    element1 = WebDriverWait(driver, 60).until(
+                        EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="https://instadivan.com/"]'))
+                    )
+                    # time.sleep(2)
                     # Прокручиваем страницу до элемента если елемента не видно
                     driver.execute_script("arguments[0].scrollIntoView(true);", element1)
                     time.sleep(5)
@@ -149,7 +154,7 @@ def main():
                 except Exception as e:
                     print(f"Элемент (element_to_be_clickable((By.CSS_SELECTOR, 'https://.com/) не найден: {e}")
 
-                time.sleep(5)
+                time.sleep(7)
 
                 # try:
                 #     element = WebDriverWait(driver, 60).until(

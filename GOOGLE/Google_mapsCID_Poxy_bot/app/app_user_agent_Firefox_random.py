@@ -78,10 +78,10 @@ def get_firefox_emulation_settings():
                 "windowSize": "1366,768"
             },
             # Internet Explorer 11 на Windows 10
-            {
-                "userAgent": "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
-                "windowSize": "1600,900"
-            },
+            # {
+            #     "userAgent": "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
+            #     "windowSize": "1600,900"
+            # },
             # Firefox на Windows 10
             {
                 "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0",

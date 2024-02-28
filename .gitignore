@@ -9,6 +9,7 @@ __pycache__
 *.jpg
 *.csv
 *.zip
+*.rar
 *.mp3
 *.mp4
 *.sql

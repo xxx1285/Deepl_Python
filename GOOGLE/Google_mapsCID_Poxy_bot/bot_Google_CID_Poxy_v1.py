@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException, \
                                         ElementClickInterceptedException, InvalidArgumentException
 
-from app.app_user_agent_random import get_device_emulation_settings
+from app.app_user_agent_Chrome_random import get_device_emulation_settings
 import sys
 sys.path.append('D:\\Gembling\\Deepl_Python\\Deepl_Python')
 from Proxy.Restart_modem.E3372_Restart_control_clas_v1 import ModemController
@@ -28,7 +28,7 @@ def create_driver_with_emulation():
     chrome_options = Options()
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--mute-audio")
-    chrome_options.add_argument(f'--proxy-server={PROXY}')
+    # chrome_options.add_argument(f'--proxy-server={PROXY}')
     # опции для игнорирования ошибок сертификатов в Chrome
     chrome_options.add_argument('--ignore-ssl-errors=yes')
     chrome_options.add_argument('--ignore-certificate-errors-spki-list')

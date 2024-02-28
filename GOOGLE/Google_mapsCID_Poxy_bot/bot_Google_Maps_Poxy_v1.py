@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException, \
                                         ElementClickInterceptedException, InvalidArgumentException
 
-from app.app_user_agent_random import get_device_emulation_settings
+from app.app_user_agent_Chrome_random import get_device_emulation_settings
 import sys
 sys.path.append('D:\\Gembling\\Deepl_Python\\Deepl_Python')
 from Proxy.Restart_modem.E3372_Restart_control_clas_v1 import ModemController
