@@ -2,9 +2,9 @@ import pyshorteners
 from urllib.parse import quote
 
 # Путь к входному файлу с URL
-input_file_path = r'Linkbilding\SHORT_URL\input\1win-officialsite_store.txt'
+input_file_path = r'Rediki\4-s_uls_create_A_Link_Zamena301Ankora\output\redici-URL-esperancacooesperanca_org.txt'
 # Путь к выходному файлу с результатами
-output_file_path = r'Linkbilding\SHORT_URL\output\output-1win-officialsite_store.txt'
+output_file_path = r'Linkbilding\SHORT_URL\output\output-redik-esperancacooesperanca_org.txt'
 
 # s = pyshorteners.Shortener()
 def read_urls(file_path):
@@ -17,7 +17,8 @@ def shorten_url(url, service, services):
     s = pyshorteners.Shortener()
     try:
         # Кодируем URL для обработки специальных символов
-        encoded_url = quote(url, safe='/:')
+        # encoded_url = quote(url, safe='/:')
+        encoded_url = url
 
         if service == 'bitly':
             s = pyshorteners.Shortener(api_key='0e5bedd2d4a717cb74f61962357c0255a5a9cf3f')
@@ -62,8 +63,8 @@ def main():
     urls = read_urls(input_file_path)
     shortened_urls = []
     for url in urls:
-        services = ['tinyurl', 'tinycc', 'cuttly', 'bitly', 'dagd', 'isgd']
-        # , 'owly', 'qpsru', 'chilpit', 'clckru', 'nullpointer', 'qpsru', 'shortcm, 'osdb''
+        services = ['isgd'] # , 'dagd'
+        # , 'owly', 'qpsru', 'chilpit', 'clckru', 'nullpointer', 'qpsru', 'shortcm, 'osdb'',---- 'tinyurl', 'tinycc', 'cuttly', 'bitly'
         for service in services:  # Добавьте сюда другие сервисы
             short_url = shorten_url(url, service, services)
             if short_url:

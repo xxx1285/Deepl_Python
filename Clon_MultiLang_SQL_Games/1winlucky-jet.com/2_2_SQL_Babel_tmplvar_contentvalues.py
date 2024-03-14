@@ -10,7 +10,7 @@ import os
 current_folder = os.path.basename(os.path.dirname(__file__))
 
 # BABEL JSON path
-babel_file_path = f'Clon_MultiLang_SQL_Games\\{current_folder}\\Babel_svyazi_all_lang\\babel_baza_dict.json'
+babel_file_path = f'Clon_MultiLang_SQL_Games\\{current_folder}\\Babel_svyazi_all_lang\\babel_baza_dict_RES.json'
 # SQL Config path
 sql_config = f'Clon_MultiLang_SQL_Games\\{current_folder}\\configs\\config_sql.json'
 

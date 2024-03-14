@@ -23,13 +23,11 @@ from app.app_user_agent_Chrome_random import get_device_emulation_settings
 
 
 PROXY = "127.0.0.1:3128"  # IP:PORT или "HOST:PORT" вашего прокси-сервера
-# URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs__MebelBorispol_Freya_05-02-2024.txt'
-URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs__MebelBorispol__Insta_01-02-2024.txt'
-
+URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_slots_games\input\redici-URL-1win-officialsite_store.txt'
 CHROME_DRIVER_PATH = r"D:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\122.0.6261.128\chromedriver.exe"
 
 
-KILKIST_POSESHENIY = 50
+KILKIST_POSESHENIY = 500
 
 
 def get_random_address(file_path):
@@ -42,7 +40,7 @@ def create_driver_with_emulation(PROXY, CHROME_DRIVER_PATH):
     chrome_options = Options()
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--mute-audio")
-    # chrome_options.add_argument(f'--proxy-server={PROXY}')
+    chrome_options.add_argument(f'--proxy-server={PROXY}')
     # опции для игнорирования ошибок сертификатов в Chrome
     chrome_options.add_argument('--ignore-ssl-errors=yes')
     chrome_options.add_argument('--ignore-certificate-errors-spki-list')
@@ -60,7 +58,7 @@ def create_driver_with_emulation(PROXY, CHROME_DRIVER_PATH):
 
     ser = Service(executable_path=CHROME_DRIVER_PATH)
     driver = webdriver.Chrome(service=ser, options=chrome_options)
-    # driver.set_page_load_timeout(40) 
+    driver.set_page_load_timeout(40) 
     driver.maximize_window()
 
     return driver
@@ -72,7 +70,6 @@ def main():
     
 
     for i in range(KILKIST_POSESHENIY):
-
         driver = create_driver_with_emulation(PROXY, CHROME_DRIVER_PATH)
         addresses_CID = get_random_address(URLS_ADRESS)
 
@@ -113,8 +110,7 @@ def main():
                 driver.get(addresses_CID)
 
                 urls_to_try = [
-                    # 'https://freyamebel.com/',
-                    'https://instadivan.com/'
+                    'https://1win-officialsite.store/'
                 ]
 
                 element_found = None
@@ -149,22 +145,22 @@ def main():
                 ###########################################################################
                 #   Внутрішній CLICK
                 ###########################################################################
-                try:
-                    # шукаємо всі ссилки в <nav>
-                    all_links = driver.find_elements(By.CLASS_NAME, "category-wall-title")
-                    # Фильтруем ссылки, чтобы оставить только кликабельные и видимые
-                    clickable_links = [link for link in all_links if driver.execute_script("return arguments[0].offsetParent !== null", link) and link.is_displayed()]
-                    time.sleep(3)
-                    # Проверяем, есть ли кликабельные ссылки
-                    if clickable_links:
-                        # Выбираем случайную ссылку из отфильтрованного списка
-                        random_link = random.choice(clickable_links)
-                        random_link.click()
-                        time.sleep(7)
-                    else:
-                        print("Кликабельные и видимые ссылки не найдены")
-                except Exception as e:
-                    print(f"ERROR Внутрішній CLICK {url}: {e}")
+                # try:
+                #     # шукаємо всі ссилки в <nav>
+                #     all_links = driver.find_elements(By.CSS_SELECTOR, "nav a")
+                #     # Фильтруем ссылки, чтобы оставить только кликабельные и видимые
+                #     clickable_links = [link for link in all_links if driver.execute_script("return arguments[0].offsetParent !== null", link) and link.is_displayed()]
+                #     time.sleep(3)
+                #     # Проверяем, есть ли кликабельные ссылки
+                #     if clickable_links:
+                #         # Выбираем случайную ссылку из отфильтрованного списка
+                #         random_link = random.choice(clickable_links)
+                #         random_link.click()
+                #         time.sleep(7)
+                #     else:
+                #         print("Кликабельные и видимые ссылки не найдены")
+                # except Exception as e:
+                #     print(f"ERROR Внутрішній CLICK {url}: {e}")
 
                 ###########################################################################
 

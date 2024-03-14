@@ -54,14 +54,14 @@ def read_from_txt(filename):
 
 if __name__ == "__main__":
     input_filename = r'Linkbilding\1_Telegram_link_chistim\input\text_and_telegramText.txt'
-    output_filename = r'Linkbilding\1_Telegram_link_chistim\output\extracted_urls2xml.txt'
+    output_filename = r'Linkbilding\1_Telegram_link_chistim\output\soroka.txt'
 
-    # excluded_words = ["google", "t.me", "joxi.ru", "youtube", "telegra.ph", "motozilla.com.ua", "bit.ly", "serpstat.com", \
-    #                   "mebel.com.ua", "interfax.com", "similarweb.com", "ahrefs.com", "wikipedia.org", "yandex", "wordpress.org", \
-    #                     "moz.com", "screamingfrog", "semrush", "youtu.be", "sitemaps.org", "rush-analytics", "key-collector", \
-    #                     "gtmetrix.com", "copyscape.com", "keyword.io", "serprobot.com", "atlassian.com", "keyword", "seo", \
-    #                     "collaborator.pro", ".png", ".js", "jpg", ".webp"]
-    excluded_words = ["google"]
+    excluded_words = ["google", "t.me", "joxi.ru", "youtube", "telegra.ph", "motozilla.com.ua", "bit.ly", "serpstat.com", \
+                      "mebel.com.ua", "interfax.com", "similarweb.com", "ahrefs.com", "wikipedia.org", "yandex", "wordpress.org", \
+                        "moz.com", "screamingfrog", "semrush", "youtu.be", "sitemaps.org", "rush-analytics", "key-collector", \
+                        "gtmetrix.com", "copyscape.com", "keyword.io", "serprobot.com", "atlassian.com", "keyword", "seo", \
+                        "collaborator.pro", ".png", ".js", "jpg", ".webp", "vc.ru", "prnt"]
+    # excluded_words = ["g543344e"]
 
     text = read_from_txt(input_filename)
 
