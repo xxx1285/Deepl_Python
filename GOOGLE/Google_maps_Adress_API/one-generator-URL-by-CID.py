@@ -6,10 +6,11 @@ import urllib.parse
 # https://pleper.com/index.php?do=tools&sdo=cid_converter
 
 
-KEYWORD = "кухни на заказ киев"
+KEYWORD = "дивани бориспіль"
 # купить ортопедический матрас киев, купить матрас киев
-# CID_TARGET_PLACE = 18050907804186843608
-CID_TARGET_PLACE = 1217531233587440534
+CID_TARGET_PLACE = 18050907804186843608
+# CID_TARGET_PLACE = 1217531233587440534
+# CID_TARGET_PLACE = 1217531233587440534
 # 1217531233587440534 - Дарницкий район Киева
 # 18050907804186843608 # Борисполь
 CID_MY_COMPANY = 13280552074301093291 # FreyaMebel

@@ -9,11 +9,11 @@ from app.app_perefraziruem_text_NLTK_SpaCy import paraphrase_with_spacy
 
 
 # SQL Config path
-sql_config = r'VideoRec_from_SiteMonitor\3_Zaliv_PragmatGames_on_SQLsite\configs\config_sql.json'
+sql_config = r'Parsing\Pragmatic-play\3_Zaliv_PragmatGames_on_SQLsite\configs\config_sql.json'
 with open(sql_config, 'r') as f:
     configSQL = json.load(f)
 # Открываем CSV файл
-csv_file_path = r'Parsing\Pragmatic-play\3_Zaliv_PragmatGames_on_SQLsite\input\output-urls-games-14-02-2024-v2.csv'
+csv_file_path = r'Parsing\Pragmatic-play\3_Zaliv_PragmatGames_on_SQLsite\input\output-urls-games-14-02-2024-v3.csv'
 
 
 try:

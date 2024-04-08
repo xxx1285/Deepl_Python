@@ -14,7 +14,7 @@ async def fetch(url, session, redirect_count=0, original_url=None):
             if response.status == 200:
                 text = await response.text()
                 # Шукаємо "777.com" в атрибутах href усіх посилань
-                if re.search(r'href="[^"]*777\.com[^"]*"', text):
+                if re.search(r'href="[^"]*stripteaseweb\.nl[^"]*"', text):
                     return original_url, 'accepted'
                 else:
                     # Немає посилань на "777.com" на сторінці
@@ -77,9 +77,9 @@ def write_urls_to_file(urls, output_filename, rejected_filename):
                 rejected_file.write(f"{url} - {status}\n")
 
 if __name__ == "__main__":
-    input_filename = r'GSA\FiltrRediki_naKod200\input\redici-3-res.txt'  # Замініть на шлях до вашого вхідного файлу
-    output_filename = r'GSA\FiltrRediki_naKod200\output\redici-3-res-Good.txt'  # Замініть на шлях до вашого вихідного файлу для прийнятих URL
-    rejected_filename = r'GSA\FiltrRediki_naKod200\output\redici-3-res-No.txt'  # Замініть на шлях до файлу для відхилених URL
+    input_filename = r'Rediki\3-FiltrRediki_naKod200\input\test777.txt'  # Замініть на шлях до вашого вхідного файлу
+    output_filename = r'Rediki\3-FiltrRediki_naKod200\output\test-del777.txt'  # Замініть на шлях до вашого вихідного файлу для прийнятих URL
+    rejected_filename = r'Rediki\3-FiltrRediki_naKod200\output\redici-4-res-No777-del.txt'  # Замініть на шлях до файлу для відхилених URL
 
     urls = read_urls_from_file(input_filename)
 

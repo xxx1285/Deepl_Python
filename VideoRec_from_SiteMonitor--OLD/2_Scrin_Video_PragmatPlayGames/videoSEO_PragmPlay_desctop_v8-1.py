@@ -35,7 +35,7 @@ base_path_del = os.path.dirname(os.path.abspath(__file__))
 
 # URLS_SLOTS = r'VideoRec_from_SiteMonitor\output_PragmaticGames\output-urls-games2.txt'
 URLS_SLOTS = r'VideoRec_from_SiteMonitor\2_Scrin_Video_PragmatPlayGames\input\output-urls-games-08-12-2023.txt'
-OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games8-1.csv"
+OUTPUT_GAMES_CSV = "VideoRec_from_SiteMonitor/output_PragmaticGames/output_games8-1-8.csv"
 
 
 BASE_PATH = "VideoRec_from_SiteMonitor/output_PragmaticGames/games-v8-1/"

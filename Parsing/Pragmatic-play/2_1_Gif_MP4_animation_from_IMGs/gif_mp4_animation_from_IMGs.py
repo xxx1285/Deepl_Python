@@ -6,15 +6,27 @@ import subprocess
 def convert_gif_to_video(gif_path, output_video_path):
     # Команда для конвертации GIF в MP4 с использованием FFmpeg
     cmd = ['ffmpeg', '-i', gif_path, '-movflags', 'faststart', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', output_video_path]
+    # cmd = ['ffmpeg', '-i', gif_path, '-movflags', 'faststart', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-crf', '20', '-preset', 'medium', output_video_path]
+
     try:
         subprocess.run(cmd, check=True)
         print(f"Видео {output_video_path} успешно создано.")
+        # # После конвертации удаляем GIF файл
+        os.remove(gif_path)
+        print(f"GIF файл {gif_path} удален.")
     except subprocess.CalledProcessError as e:
         print(f"Ошибка при конвертации {gif_path} в видео: {e}")
 
 def create_gif(directory, output_filename):
     # Получаем список всех файлов в каталоге и фильтруем, исключая те, что содержат "0.jpg"
+    # "0.jpg" - имеет большое расширение
     files = [f for f in os.listdir(directory) if f.endswith('.jpg') and '0.jpg' not in f]
+
+
+    # Проверяем, что в списке есть хотя бы один файл
+    if not files:
+        print(f"Ошибка: в каталоге '{directory}' отсутствуют файлы с расширением .jpg")
+        return
 
     # Случайно перемешиваем список файлов
     random.shuffle(files)
@@ -48,5 +60,5 @@ def process_directories(parent_directory):
         print("ok")
 
 # Пример использования функции
-parent_directory_path = r'Parsing\Pragmatic-play\ResultGames\games-v1'
+parent_directory_path = r'Parsing\Pragmatic-play\ResultGames\games-v2'
 process_directories(parent_directory_path)

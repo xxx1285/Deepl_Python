@@ -7,6 +7,12 @@
 __pycache__
 *.webp
 *.jpg
+*.xml
+*.htaccess
+*.log
+*.png
+*.svg
+*.wav
 *.csv
 *.zip
 *.rar
@@ -33,3 +39,4 @@ Webdriver_Chrome/
 scrapy/*
 /.scrapy/*
 /.scrapy/
+/GOOGLE_API_INDEXER/*

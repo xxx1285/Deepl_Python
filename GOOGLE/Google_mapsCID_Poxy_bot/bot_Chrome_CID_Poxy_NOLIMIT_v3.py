@@ -24,12 +24,12 @@ from app.app_user_agent_Chrome_random import get_device_emulation_settings
 
 PROXY = "127.0.0.1:3128"  # IP:PORT или "HOST:PORT" вашего прокси-сервера
 # URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs__MebelBorispol_Freya_05-02-2024.txt'
-URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs__MebelBorispol__Insta_01-02-2024.txt'
+URLS_ADRESS = r'D:\Gembling\Deepl_Python\Deepl_Python\GOOGLE\Google_mapsCID_Poxy_bot\input\CID_URLs__Kuhni_Freya_16-03-2024.txt'
 
 CHROME_DRIVER_PATH = r"D:\Gembling\Deepl_Python\Deepl_Python\SETTINGS\Chrome\122.0.6261.128\chromedriver.exe"
 
 
-KILKIST_POSESHENIY = 50
+KILKIST_POSESHENIY = 100
 
 
 def get_random_address(file_path):
@@ -42,7 +42,7 @@ def create_driver_with_emulation(PROXY, CHROME_DRIVER_PATH):
     chrome_options = Options()
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--mute-audio")
-    # chrome_options.add_argument(f'--proxy-server={PROXY}')
+    chrome_options.add_argument(f'--proxy-server={PROXY}')
     # опции для игнорирования ошибок сертификатов в Chrome
     chrome_options.add_argument('--ignore-ssl-errors=yes')
     chrome_options.add_argument('--ignore-certificate-errors-spki-list')
@@ -113,8 +113,8 @@ def main():
                 driver.get(addresses_CID)
 
                 urls_to_try = [
-                    # 'https://freyamebel.com/',
-                    'https://instadivan.com/'
+                    'https://freyamebel.com/',
+                    # 'https://instadivan.com/'
                 ]
 
                 element_found = None
